@@ -36,3 +36,7 @@ Initial public release.
 ## 0.1.0+1
 
 Updated Home page and github repository
+
+## 0.1.0+2
+
+Updated Package Description
