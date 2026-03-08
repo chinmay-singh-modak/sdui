@@ -32,3 +32,7 @@ Initial public release.
 ### Utilities
 
 - `StyleParser` — hex→Color, EdgeInsets, TextStyle, alignment resolvers
+
+## 0.1.0+1
+
+Updated Home page and github repository
