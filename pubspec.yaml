@@ -1,0 +1,28 @@
+name: flutter_sdui_kit
+description: >-
+  A server-driven UI framework for Flutter. Render screens from JSON, with
+  built-in components, template data-binding, conditional visibility, form
+  inputs, and a fully extensible component registry.
+version: 0.1.0
+homepage: https://github.com/aspect-build/flutter_sdui_kit
+repository: https://github.com/aspect-build/flutter_sdui_kit
+issue_tracker: https://github.com/aspect-build/flutter_sdui_kit/issues
+topics:
+  - sdui
+  - server-driven-ui
+  - json
+  - ui-framework
+  - dynamic-ui
+
+environment:
+  sdk: ^3.11.0
+  flutter: ">=3.22.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
