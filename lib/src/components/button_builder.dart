@@ -57,7 +57,12 @@ Widget buttonBuilder(SduiNode node, SduiContext context) {
         border: border,
         borderRadius: BorderRadius.circular(cornerRadius),
       ),
-      child: Center(
+      // Align.center sizes itself to its parent but doesn't force an
+      // infinite intrinsic width the way Center does — safe inside
+      // unconstrained parents (Row, ScrollView, etc.).
+      child: Align(
+        alignment: Alignment.center,
+        widthFactor: fullWidth ? null : 1.0,
         child: Text(
           label,
           style: TextStyle(
@@ -69,10 +74,6 @@ Widget buttonBuilder(SduiNode node, SduiContext context) {
       ),
     ),
   );
-
-  if (fullWidth) {
-    btn = SizedBox(width: double.infinity, child: btn);
-  }
 
   return btn;
 }

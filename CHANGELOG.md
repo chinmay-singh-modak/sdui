@@ -1,5 +1,12 @@
 # Changelog
 
+## 0.2.1
+
+### Bug Fixes
+
+- **Fixed:** `buttonBuilder` crashed with `BoxConstraints forces an infinite width` when a `full_width: true` button was placed inside a `Row` or other unconstrained parent. Replaced `Center` + `SizedBox(width: infinity)` with layout-safe `Align` widget.
+- Updated example to use `flex: 1` on buttons inside a `Row` for proper space distribution.
+
 ## 0.2.0
 
 ### New Components
@@ -83,7 +90,3 @@ Initial public release.
 ## 0.1.0+1
 
 Updated Home page and github repository
-
-## 0.1.1
-
-Updated Package Description
