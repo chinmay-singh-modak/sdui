@@ -55,15 +55,17 @@ class _AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
 
-    // Navigation handler
-    _actions.register('navigate', (action, payload) {
+    // Navigation handler — now receives BuildContext directly from the
+    // widget that triggered the action, so Navigator.of(context) works.
+    _actions.register('navigate', (context, action, payload) {
       final route = payload['route'] ?? '?';
       print('→ Navigate to $route');
+      Navigator.of(context).pushNamed(route);
       setState(() => _errors.add('Navigate → $route'));
     });
 
     // API call handler
-    _actions.register('api_call', (action, payload) {
+    _actions.register('api_call', (context, action, payload) {
       final method = payload['method'] ?? 'GET';
       final endpoint = payload['endpoint'] ?? '?';
       print('→ API: $method $endpoint');
@@ -71,7 +73,7 @@ class _AppShellState extends State<AppShell> {
     });
 
     // Form input handler
-    _actions.register('input_changed', (action, payload) {
+    _actions.register('input_changed', (context, action, payload) {
       final field = payload['field'] as String? ?? '';
       final value = payload['value'];
       print('→ Form: $field = $value');
@@ -81,7 +83,7 @@ class _AppShellState extends State<AppShell> {
     });
 
     // Catch-all for unknown actions
-    _actions.onUnhandled = (action, payload) {
+    _actions.onUnhandled = (context, action, payload) {
       print('→ Unhandled action: ${action.type}');
       setState(() => _errors.add('Unhandled: ${action.type}'));
     };

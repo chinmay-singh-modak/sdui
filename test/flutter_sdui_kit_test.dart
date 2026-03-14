@@ -93,25 +93,29 @@ void main() {
   });
 
   group('ActionHandler', () {
-    test('dispatches to registered handler', () {
+    testWidgets('dispatches to registered handler', (tester) async {
       final handler = ActionHandler();
       String? receivedRoute;
-      handler.register('navigate', (action, payload) {
+      handler.register('navigate', (context, action, payload) {
         receivedRoute = payload['route'] as String?;
       });
-      handler.handle(SduiAction(
+      late BuildContext ctx;
+      await tester.pumpWidget(Builder(builder: (c) { ctx = c; return const SizedBox(); }));
+      handler.handle(ctx, SduiAction(
         type: 'navigate',
         payload: {'route': '/shop'},
       ));
       expect(receivedRoute, '/shop');
     });
 
-    test('calls onUnhandled for unknown action types', () {
+    testWidgets('calls onUnhandled for unknown action types', (tester) async {
       String? unhandledType;
       final handler = ActionHandler(
-        onUnhandled: (action, _) => unhandledType = action.type,
+        onUnhandled: (context, action, _) => unhandledType = action.type,
       );
-      handler.handle(const SduiAction(type: 'unknown_action'));
+      late BuildContext ctx;
+      await tester.pumpWidget(Builder(builder: (c) { ctx = c; return const SizedBox(); }));
+      handler.handle(ctx, const SduiAction(type: 'unknown_action'));
       expect(unhandledType, 'unknown_action');
     });
   });
@@ -410,7 +414,7 @@ void main() {
       bool? lastValue;
 
       final actions = ActionHandler();
-      actions.register('input_changed', (action, payload) {
+      actions.register('input_changed', (context, action, payload) {
         lastField = payload['field'] as String?;
         lastValue = payload['value'] as bool?;
       });
@@ -447,7 +451,7 @@ void main() {
       bool? toggled;
 
       final actions = ActionHandler();
-      actions.register('input_changed', (action, payload) {
+      actions.register('input_changed', (context, action, payload) {
         toggled = payload['value'] as bool?;
       });
 

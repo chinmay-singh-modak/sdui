@@ -5,6 +5,9 @@ import '../models/sdui_action.dart';
 import '../models/sdui_node.dart';
 import '../styles/style_parser.dart';
 
+/// Internal callback that carries both a value and the widget's [BuildContext].
+typedef _ContextValueChanged<T> = void Function(BuildContext context, T value);
+
 /// Builds a text input field.
 ///
 /// Supported props:
@@ -37,14 +40,14 @@ Widget textInputBuilder(SduiNode node, SduiContext context) {
     fieldName: fieldName,
     cornerRadius: cornerRadius,
     borderColor: borderColor,
-    onChanged: (value) {
-      context.onAction?.call(SduiAction(
+    onChanged: (ctx, value) {
+      context.onAction?.call(ctx, SduiAction(
         type: 'input_changed',
         payload: {'field': fieldName, 'value': value},
       ));
     },
     onSubmitted: node.action != null
-        ? (_) => context.onAction?.call(node.action!)
+        ? (ctx, _) => context.onAction?.call(ctx, node.action!)
         : null,
   );
 }
@@ -57,8 +60,8 @@ class _SduiTextInput extends StatefulWidget {
   final String fieldName;
   final double cornerRadius;
   final Color borderColor;
-  final ValueChanged<String>? onChanged;
-  final ValueChanged<String>? onSubmitted;
+  final _ContextValueChanged<String>? onChanged;
+  final _ContextValueChanged<String>? onSubmitted;
 
   const _SduiTextInput({
     required this.placeholder,
@@ -107,8 +110,8 @@ class _SduiTextInputState extends State<_SduiTextInput> {
         backgroundCursorColor: const Color(0xFFCCCCCC),
         maxLines: widget.maxLines,
         obscureText: widget.obscure,
-        onChanged: widget.onChanged,
-        onSubmitted: widget.onSubmitted,
+        onChanged: (value) => widget.onChanged?.call(context, value),
+        onSubmitted: (value) => widget.onSubmitted?.call(context, value),
       ),
     );
   }
@@ -135,8 +138,8 @@ Widget checkboxBuilder(SduiNode node, SduiContext context) {
     label: label,
     size: size,
     activeColor: activeColor,
-    onChanged: (value) {
-      context.onAction?.call(SduiAction(
+    onChanged: (ctx, value) {
+      context.onAction?.call(ctx, SduiAction(
         type: 'input_changed',
         payload: {'field': fieldName, 'value': value},
       ));
@@ -149,7 +152,7 @@ class _SduiCheckbox extends StatefulWidget {
   final String label;
   final double size;
   final Color activeColor;
-  final ValueChanged<bool>? onChanged;
+  final _ContextValueChanged<bool>? onChanged;
 
   const _SduiCheckbox({
     required this.checked,
@@ -177,7 +180,7 @@ class _SduiCheckboxState extends State<_SduiCheckbox> {
     return GestureDetector(
       onTap: () {
         setState(() => _checked = !_checked);
-        widget.onChanged?.call(_checked);
+        widget.onChanged?.call(context, _checked);
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -234,8 +237,8 @@ Widget switchBuilder(SduiNode node, SduiContext context) {
     value: value,
     label: label,
     activeColor: activeColor,
-    onChanged: (v) {
-      context.onAction?.call(SduiAction(
+    onChanged: (ctx, v) {
+      context.onAction?.call(ctx, SduiAction(
         type: 'input_changed',
         payload: {'field': fieldName, 'value': v},
       ));
@@ -247,7 +250,7 @@ class _SduiSwitch extends StatefulWidget {
   final bool value;
   final String label;
   final Color activeColor;
-  final ValueChanged<bool>? onChanged;
+  final _ContextValueChanged<bool>? onChanged;
 
   const _SduiSwitch({
     required this.value,
@@ -274,7 +277,7 @@ class _SduiSwitchState extends State<_SduiSwitch> {
     return GestureDetector(
       onTap: () {
         setState(() => _on = !_on);
-        widget.onChanged?.call(_on);
+        widget.onChanged?.call(context, _on);
       },
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -338,8 +341,8 @@ Widget dropdownBuilder(SduiNode node, SduiContext context) {
     placeholder: placeholder,
     cornerRadius: cornerRadius,
     borderColor: borderColor,
-    onChanged: (value) {
-      context.onAction?.call(SduiAction(
+    onChanged: (ctx, value) {
+      context.onAction?.call(ctx, SduiAction(
         type: 'input_changed',
         payload: {'field': fieldName, 'value': value},
       ));
@@ -353,7 +356,7 @@ class _SduiDropdown extends StatefulWidget {
   final String placeholder;
   final double cornerRadius;
   final Color borderColor;
-  final ValueChanged<String>? onChanged;
+  final _ContextValueChanged<String>? onChanged;
 
   const _SduiDropdown({
     required this.options,
@@ -441,7 +444,7 @@ class _SduiDropdownState extends State<_SduiDropdown> {
                       _selected = value;
                       _expanded = false;
                     });
-                    widget.onChanged?.call(value);
+                    widget.onChanged?.call(context, value);
                   },
                   child: Container(
                     padding:

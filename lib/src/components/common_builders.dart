@@ -145,9 +145,11 @@ Widget cardBuilder(SduiNode node, SduiContext context) {
 
   // Wrap with GestureDetector if an action is attached.
   if (node.action != null) {
-    card = GestureDetector(
-      onTap: () => context.onAction?.call(node.action!),
-      child: card,
+    card = Builder(
+      builder: (buildContext) => GestureDetector(
+        onTap: () => context.onAction?.call(buildContext, node.action!),
+        child: card,
+      ),
     );
   }
 

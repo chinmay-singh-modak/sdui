@@ -25,18 +25,21 @@ Widget gestureBuilder(SduiNode node, SduiContext context) {
     _ => HitTestBehavior.opaque,
   };
 
-  return GestureDetector(
-    behavior: behavior,
-    onTap: node.action != null
-        ? () => context.onAction?.call(node.action!)
-        : null,
-    onLongPress: node.props.containsKey('long_press_action')
-        ? () => context.onAction?.call(
-              SduiAction.fromJson(
-                node.props['long_press_action'] as Map<String, dynamic>,
-              ),
-            )
-        : null,
-    child: child,
+  return Builder(
+    builder: (buildContext) => GestureDetector(
+      behavior: behavior,
+      onTap: node.action != null
+          ? () => context.onAction?.call(buildContext, node.action!)
+          : null,
+      onLongPress: node.props.containsKey('long_press_action')
+          ? () => context.onAction?.call(
+                buildContext,
+                SduiAction.fromJson(
+                  node.props['long_press_action'] as Map<String, dynamic>,
+                ),
+              )
+          : null,
+      child: child,
+    ),
   );
 }

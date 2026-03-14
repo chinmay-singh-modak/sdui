@@ -1,5 +1,37 @@
 # Changelog
 
+## 0.3.0
+
+### Breaking Changes
+
+- **`ActionTypeHandler`** signature changed from `(SduiAction, Map<String, dynamic>)` to `(BuildContext, SduiAction, Map<String, dynamic>)`.
+- **`ActionCallback`** signature changed from `(SduiAction)` to `(BuildContext, SduiAction)`.
+- **`ActionHandler.handle()`** now requires `BuildContext` as its first argument.
+- **`ActionHandler.onUnhandled`** callback now receives `BuildContext` as its first argument.
+
+### Why
+
+Action handlers previously had no access to the widget tree's `BuildContext`. This made it impossible to call `Navigator.of(context)`, show dialogs, or use any API that requires a context. Components now capture `BuildContext` from their `build()` method and forward it through the callback chain.
+
+### Migration Guide
+
+```dart
+// Before (0.2.x)
+handler.register('navigate', (action, payload) {
+  // no context available — navigation hacks needed
+});
+
+// After (0.3.0)
+handler.register('navigate', (context, action, payload) {
+  Navigator.of(context).pushNamed(payload['route'] as String);
+});
+```
+
+### Improvements
+
+- Button, gesture, and card builders use `Builder` widget to provide live `BuildContext` to action callbacks.
+- Form builders (text input, checkbox, switch, dropdown) pass `BuildContext` through `onChanged`/`onSubmitted` callbacks.
+
 ## 0.2.1
 
 ### Bug Fixes

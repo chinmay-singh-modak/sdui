@@ -13,6 +13,10 @@ class SduiContext {
   final SduiTheme? theme;
 
   /// Callback that resolves [SduiAction]s at runtime.
+  ///
+  /// Component builders should call this with the Flutter [BuildContext] from
+  /// their `build()` method so that action handlers can use it for navigation,
+  /// dialogs, snackbars, etc.
   final ActionCallback? onAction;
 
   /// Reference to the renderer so builders can render children.
@@ -38,4 +42,7 @@ typedef ComponentBuilder = Widget Function(SduiNode node, SduiContext context);
 
 /// Signature for the action callback invoked when a user interacts with
 /// a component that carries an [SduiAction].
-typedef ActionCallback = void Function(SduiAction action);
+///
+/// The [BuildContext] is the context of the widget that triggered the action,
+/// giving handlers access to [Navigator.of], [Overlay.of], etc.
+typedef ActionCallback = void Function(BuildContext context, SduiAction action);

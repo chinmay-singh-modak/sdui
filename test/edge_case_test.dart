@@ -570,7 +570,7 @@ void main() {
       // Verifies that repeated taps all go through the same handler.
       int tapCount = 0;
       final actions = ActionHandler();
-      actions.register('count_tap', (a, p) => tapCount++);
+      actions.register('count_tap', (_, a, p) => tapCount++);
 
       await tester.pumpWidget(_testbed(SduiWidget(
         json: jsonEncode({

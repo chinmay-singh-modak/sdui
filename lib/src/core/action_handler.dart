@@ -1,9 +1,15 @@
+import 'package:flutter/widgets.dart';
+
 import '../models/sdui_action.dart';
 import 'sdui_context.dart';
 
 /// Callback signature for individual action type handlers.
+///
+/// The [BuildContext] is the context of the widget that triggered the action
+/// (e.g. the button that was tapped). Use it for [Navigator.of],
+/// [Overlay.of], showing dialogs, etc.
 typedef ActionTypeHandler = void Function(
-    SduiAction action, Map<String, dynamic> payload);
+    BuildContext context, SduiAction action, Map<String, dynamic> payload);
 
 /// Central dispatcher for [SduiAction]s.
 ///
@@ -13,8 +19,8 @@ typedef ActionTypeHandler = void Function(
 ///
 /// ```dart
 /// final handler = ActionHandler();
-/// handler.register('navigate', (action, payload) {
-///   Navigator.pushNamed(context, payload['route']);
+/// handler.register('navigate', (context, action, payload) {
+///   Navigator.of(context).pushNamed(payload['route'] as String);
 /// });
 /// ```
 class ActionHandler {
@@ -41,12 +47,16 @@ class ActionHandler {
   }
 
   /// Dispatch an [SduiAction] to the matching registered handler.
-  void handle(SduiAction action) {
+  ///
+  /// The [context] is the Flutter [BuildContext] of the widget that triggered
+  /// this action — it is forwarded to the handler so it can navigate, show
+  /// dialogs, etc.
+  void handle(BuildContext context, SduiAction action) {
     final handler = _handlers[action.type];
     if (handler != null) {
-      handler(action, action.payload);
+      handler(context, action, action.payload);
     } else {
-      onUnhandled?.call(action, action.payload);
+      onUnhandled?.call(context, action, action.payload);
       assert(() {
         // ignore: avoid_print
         print('[SDUI] Unhandled action type: "${action.type}"');

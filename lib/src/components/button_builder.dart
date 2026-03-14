@@ -48,27 +48,31 @@ Widget buttonBuilder(SduiNode node, SduiContext context) {
       border = null;
   }
 
-  Widget btn = GestureDetector(
-    onTap: node.action != null ? () => context.onAction?.call(node.action!) : null,
-    child: Container(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-      decoration: BoxDecoration(
-        color: bgColor,
-        border: border,
-        borderRadius: BorderRadius.circular(cornerRadius),
-      ),
-      // Align.center sizes itself to its parent but doesn't force an
-      // infinite intrinsic width the way Center does — safe inside
-      // unconstrained parents (Row, ScrollView, etc.).
-      child: Align(
-        alignment: Alignment.center,
-        widthFactor: fullWidth ? null : 1.0,
-        child: Text(
-          label,
-          style: TextStyle(
-            color: textColor,
-            fontWeight: FontWeight.w600,
-            fontSize: 14,
+  Widget btn = Builder(
+    builder: (buildContext) => GestureDetector(
+      onTap: node.action != null
+          ? () => context.onAction?.call(buildContext, node.action!)
+          : null,
+      child: Container(
+        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        decoration: BoxDecoration(
+          color: bgColor,
+          border: border,
+          borderRadius: BorderRadius.circular(cornerRadius),
+        ),
+        // Align.center sizes itself to its parent but doesn't force an
+        // infinite intrinsic width the way Center does — safe inside
+        // unconstrained parents (Row, ScrollView, etc.).
+        child: Align(
+          alignment: Alignment.center,
+          widthFactor: fullWidth ? null : 1.0,
+          child: Text(
+            label,
+            style: TextStyle(
+              color: textColor,
+              fontWeight: FontWeight.w600,
+              fontSize: 14,
+            ),
           ),
         ),
       ),
