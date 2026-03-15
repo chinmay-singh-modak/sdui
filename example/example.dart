@@ -9,6 +9,10 @@ import 'package:flutter_sdui_kit/flutter_sdui_kit.dart';
 
 void main() => runApp(const ExampleApp());
 
+/// Shared navigator key — lets action handlers navigate even when the SDUI
+/// widget is above the Navigator in the tree.
+final _navigatorKey = GlobalKey<NavigatorState>();
+
 class ExampleApp extends StatelessWidget {
   const ExampleApp({super.key});
 
@@ -16,7 +20,8 @@ class ExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return WidgetsApp(
       color: const Color(0xFF6C63FF),
-      builder: (context, _) => const HomeScreen(),
+      navigatorKey: _navigatorKey,
+      builder: (context, child) => const HomeScreen(),
     );
   }
 }
@@ -26,11 +31,12 @@ class HomeScreen extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // 1. Set up action handlers
-    final actions = ActionHandler();
+    // 1. Set up action handlers with navigatorKey for safe navigation
+    final actions = ActionHandler(navigatorKey: _navigatorKey);
     actions.register('navigate', (context, action, payload) {
-      // ignore: avoid_print
-      print('Navigate to ${payload['route']}');
+      // Uses navigatorOf() — tries Navigator.of(context) first, then
+      // falls back to the navigatorKey.
+      actions.navigatorOf(context).pushNamed(payload['route'] as String);
     });
     actions.register('api_call', (context, action, payload) {
       // ignore: avoid_print

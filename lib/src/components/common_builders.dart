@@ -119,7 +119,7 @@ Widget cardBuilder(SduiNode node, SduiContext context) {
           children: children,
         );
 
-  Widget card = Container(
+  final cardWidget = Container(
     width: width,
     decoration: BoxDecoration(
       color: bgColor,
@@ -145,15 +145,15 @@ Widget cardBuilder(SduiNode node, SduiContext context) {
 
   // Wrap with GestureDetector if an action is attached.
   if (node.action != null) {
-    card = Builder(
+    return Builder(
       builder: (buildContext) => GestureDetector(
         onTap: () => context.onAction?.call(buildContext, node.action!),
-        child: card,
+        child: cardWidget,
       ),
     );
   }
 
-  return card;
+  return cardWidget;
 }
 
 /// Builds a horizontal divider.

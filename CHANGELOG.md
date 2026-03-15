@@ -1,5 +1,16 @@
 # Changelog
 
+## 0.3.1
+
+### Bug Fixes
+
+- **Fixed:** `cardBuilder` caused a **stack overflow on render** when a card had an action. The `Builder` widget's child referenced the reassigned `card` variable, creating infinite recursion (`Builder → GestureDetector → card → Builder → …`). Now uses a separate `cardWidget` variable.
+
+### New Features
+
+- **`ActionHandler.navigatorKey`** — optional `GlobalKey<NavigatorState>` fallback for navigation when `BuildContext` doesn't contain a `Navigator` ancestor (e.g. inside `MaterialApp(builder:)` or `WidgetsApp(builder:)`).
+- **`ActionHandler.navigatorOf(context)`** — safe navigation helper that tries `Navigator.of(context)` first, then falls back to `navigatorKey.currentState`. Throws a descriptive error if neither works.
+
 ## 0.3.0
 
 ### Breaking Changes

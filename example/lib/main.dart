@@ -20,6 +20,11 @@ import 'screens/custom_component_screen.dart';
 
 void main() => runApp(const ExampleApp());
 
+/// Shared navigator key — passed to both `WidgetsApp` and `ActionHandler`
+/// so that action handlers can navigate even when the SDUI widget sits
+/// above the navigator in the widget tree.
+final _navigatorKey = GlobalKey<NavigatorState>();
+
 class ExampleApp extends StatelessWidget {
   const ExampleApp({super.key});
 
@@ -27,7 +32,8 @@ class ExampleApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return WidgetsApp(
       color: const Color(0xFF6C63FF),
-      builder: (context, _) => const AppShell(),
+      navigatorKey: _navigatorKey,
+      builder: (context, child) => AppShell(child: child),
     );
   }
 }
@@ -37,7 +43,10 @@ class ExampleApp extends StatelessWidget {
 // ─────────────────────────────────────────────────────────────────────────────
 
 class AppShell extends StatefulWidget {
-  const AppShell({super.key});
+  /// The navigator child widget from [WidgetsApp].
+  final Widget? child;
+
+  const AppShell({super.key, this.child});
 
   @override
   State<AppShell> createState() => _AppShellState();
@@ -46,8 +55,8 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _tab = 0;
 
-  // Shared action handler — prints actions to console.
-  final _actions = ActionHandler();
+  // Shared action handler with navigatorKey for safe navigation.
+  final _actions = ActionHandler(navigatorKey: _navigatorKey);
   final _formData = <String, dynamic>{};
   final _errors = <String>[];
 
@@ -55,12 +64,12 @@ class _AppShellState extends State<AppShell> {
   void initState() {
     super.initState();
 
-    // Navigation handler — now receives BuildContext directly from the
-    // widget that triggered the action, so Navigator.of(context) works.
+    // Navigation handler — uses navigatorOf() which tries
+    // Navigator.of(context) first, then falls back to the navigatorKey.
     _actions.register('navigate', (context, action, payload) {
       final route = payload['route'] ?? '?';
       print('→ Navigate to $route');
-      Navigator.of(context).pushNamed(route);
+      _actions.navigatorOf(context).pushNamed(route);
       setState(() => _errors.add('Navigate → $route'));
     });
 

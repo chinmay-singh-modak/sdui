@@ -30,9 +30,10 @@ SduiWidget(json: serverResponseJson)
 
 ```dart
 // Create an action handler.
-final actions = ActionHandler();
-actions.register('navigate', (action, payload) {
-  Navigator.pushNamed(context, payload['route'] as String);
+final navKey = GlobalKey<NavigatorState>();
+final actions = ActionHandler(navigatorKey: navKey);
+actions.register('navigate', (context, action, payload) {
+  actions.navigatorOf(context).pushNamed(payload['route'] as String);
 });
 
 // Render with data for templates and visibility conditions.
@@ -188,17 +189,20 @@ Supported: `truthy`, `!negation`, `==`, `!=`, `>`, `<`, `>=`, `<=`, `&&`, `||`
 ## Action Handling
 
 ```dart
-final actions = ActionHandler();
+final navKey = GlobalKey<NavigatorState>();
+final actions = ActionHandler(navigatorKey: navKey);
 
-actions.register('navigate', (action, payload) {
-  Navigator.pushNamed(context, payload['route'] as String);
+actions.register('navigate', (context, action, payload) {
+  // navigatorOf() tries Navigator.of(context) first, then falls back
+  // to the navigatorKey — works even inside MaterialApp(builder:).
+  actions.navigatorOf(context).pushNamed(payload['route'] as String);
 });
 
-actions.register('api_call', (action, payload) async {
+actions.register('api_call', (context, action, payload) async {
   await http.post(Uri.parse(payload['endpoint'] as String));
 });
 
-actions.onUnhandled = (action, payload) {
+actions.onUnhandled = (context, action, payload) {
   debugPrint('Unknown action: ${action.type}');
 };
 ```
@@ -279,10 +283,10 @@ class _MyScreenState extends State<MyScreen> {
   @override
   Widget build(BuildContext context) {
     final actions = ActionHandler();
-    actions.register('navigate', (a, p) {
-      Navigator.pushNamed(context, p['route'] as String);
+    actions.register('navigate', (ctx, a, p) {
+      Navigator.pushNamed(ctx, p['route'] as String);
     });
-    actions.register('input_changed', (a, p) {
+    actions.register('input_changed', (ctx, a, p) {
       setState(() => _data = {..._data, p['field']: p['value']});
     });
 
@@ -313,10 +317,10 @@ class MyScreen extends ConsumerWidget {
     final formData = ref.watch(formDataProvider);
 
     final actions = ActionHandler();
-    actions.register('navigate', (a, p) {
-      Navigator.pushNamed(context, p['route'] as String);
+    actions.register('navigate', (ctx, a, p) {
+      Navigator.pushNamed(ctx, p['route'] as String);
     });
-    actions.register('input_changed', (a, p) {
+    actions.register('input_changed', (ctx, a, p) {
       ref.read(formDataProvider.notifier).state = {
         ...ref.read(formDataProvider),
         p['field']: p['value'],
@@ -454,7 +458,9 @@ Same JSON, any platform.
 |---|---|
 | `register(type, handler)` | Add a handler |
 | `registerAll(map)` | Add multiple handlers |
-| `handle(action)` | Dispatch an action |
+| `handle(context, action)` | Dispatch an action |
+| `navigatorOf(context)` | Safe navigator lookup (context → navigatorKey fallback) |
+| `navigatorKey` | Optional `GlobalKey<NavigatorState>` for fallback navigation |
 | `onUnhandled` | Catch-all for unknown types |
 
 ### SduiError
