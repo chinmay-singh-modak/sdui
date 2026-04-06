@@ -48,7 +48,7 @@ class _SduiVisitor extends RecursiveAstVisitor<void> {
     // Build maps of field name → annotations and field name → declared type
     final fieldAnnotations = <String, List<Annotation>>{};
     final fieldTypes = <String, String>{};
-    for (final member in node.members) {
+    for (final member in node.body.members) {
       if (member is FieldDeclaration) {
         final typeStr = member.fields.type?.toSource() ?? 'dynamic';
         for (final variable in member.fields.variables) {
@@ -60,13 +60,13 @@ class _SduiVisitor extends RecursiveAstVisitor<void> {
 
     // Find the primary constructor (unnamed or first named)
     ConstructorDeclaration? constructor;
-    for (final member in node.members) {
+    for (final member in node.body.members) {
       if (member is ConstructorDeclaration && member.name == null) {
         constructor = member;
         break;
       }
     }
-    constructor ??= node.members.whereType<ConstructorDeclaration>().firstOrNull;
+    constructor ??= node.body.members.whereType<ConstructorDeclaration>().firstOrNull;
 
     final props = <RawProp>[];
     final actions = <RawAction>[];
@@ -109,7 +109,7 @@ class _SduiVisitor extends RecursiveAstVisitor<void> {
     }
 
     components.add(RawComponent(
-      widgetClassName: node.name.lexeme,
+      widgetClassName: node.namePart.typeName.lexeme,
       sduiName: sduiName,
       props: props,
       actions: actions,

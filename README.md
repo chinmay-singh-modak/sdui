@@ -141,6 +141,7 @@ Config resolution priority (highest to lowest):
 | `String`                     | `string`                             |
 | `int`                        | `integer`                            |
 | `double`                     | `number`                             |
+| `num`                        | `number`                             |
 | `bool`                       | `boolean`                            |
 | `List<T>`                    | `array`                              |
 | `Map<K, V>`                  | `object`                             |
@@ -165,11 +166,14 @@ dart run flutter_sdui_converter --input . --previous sdui_schema_v1.json
 | Prop removed                  | Yes      |
 | Prop type changed             | Yes      |
 | Required prop added           | Yes      |
+| Prop became required          | Yes      |
+| Action support removed        | Yes      |
 | Component removed             | Yes      |
 | Component renamed             | Yes      |
 | New optional prop added       | No       |
 | New component added           | No       |
 | Default value added to prop   | No       |
+| Action support added          | No       |
 | Prop order changed            | No       |
 
 In `strict_mode`, breaking changes exit non-zero. Otherwise they print as warnings and conversion succeeds.
@@ -194,3 +198,4 @@ Each stage is an independent class with a single public method. No I/O in the pa
 | `flutter_sdui_annotations` | Annotations                                 |
 | `flutter_sdui_converter`   | CLI + programmatic converter (this package) |
 | `flutter_sdui_test`        | Golden test utilities                       |
+| `flutter_sdui_kit`         | SDUI runtime renderer (`SduiWidget`)        |

@@ -6,7 +6,7 @@ import 'parser/component_parser.dart';
 import 'scanner/file_scanner.dart';
 import 'transformer/schema_transformer.dart';
 
-const _converterVersion = '1.0.0';
+const _converterVersion = '1.0.1';
 
 class SduiConverter {
   /// Converts the Flutter project at [projectPath] into an [SduiSchema].
