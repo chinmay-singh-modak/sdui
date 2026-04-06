@@ -1,0 +1,9 @@
+[submodule "flutter_sdui_converter"]
+	path = flutter_sdui_converter
+	url = https://github.com/chinmay-singh-modak/flutter_sdui_converter
+[submodule "flutter_sdui_annotations"]
+	path = flutter_sdui_annotations
+	url = https://github.com/chinmay-singh-modak/flutter_sdui_annotations
+[submodule "flutter_sdui_test"]
+	path = flutter_sdui_test
+	url = https://github.com/chinmay-singh-modak/flutter_sdui_test

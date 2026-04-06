@@ -1,0 +1,22 @@
+
+# FVM Version Cache
+.fvm/
+
+# Dart/Pub
+.dart_tool/
+.packages
+pubspec.lock
+build/
+doc/api/
+
+# IDE
+.idea/
+.vscode/
+*.iml
+
+# Test coverage
+coverage/
+lcov.info
+
+# macOS
+.DS_Store
