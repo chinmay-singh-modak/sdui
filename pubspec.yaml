@@ -1,7 +1,7 @@
 name: flutter_sdui_converter
 description: Converts annotated Flutter widgets into SDUI (Server-Driven UI) JSON schemas.
 version: 1.0.0
-repository: https://github.com/chinmay-singh-modak/flutter_sdui_kit
+repository: https://github.com/chinmay-singh-modak/flutter_sdui_converter
 
 environment:
   sdk: ^3.4.0
@@ -12,8 +12,7 @@ dependencies:
   glob: ^2.1.2
   path: ^1.9.0
   yaml: ^3.1.2
-  flutter_sdui_annotations:
-    path: ../flutter_sdui_annotations
+  flutter_sdui_annotations: ^1.0.0
 
 dev_dependencies:
   lints: ^3.0.0
