@@ -11,8 +11,7 @@ Golden test utilities for the Flutter SDUI framework. Drop it in `dev_dependenci
 dev_dependencies:
   flutter_sdui_test:
     git:
-      url: git@github.com:chinmay-singh-modak/flutter_sdui_kit.git
-      path: packages/flutter_sdui_test
+      url: git@github.com:chinmay-singh-modak/flutter_sdui_test.git
 ```
 
 ---
@@ -156,3 +155,4 @@ When `threshold > 0.0`, `sduiGoldenTest` installs a custom `goldenFileComparator
 | `flutter_sdui_annotations` | Annotations                                  |
 | `flutter_sdui_converter`   | CLI + programmatic converter tool            |
 | `flutter_sdui_test`        | Golden test utilities (this package)         |
+| `flutter_sdui_kit`         | SDUI runtime renderer (`SduiWidget`)         |
