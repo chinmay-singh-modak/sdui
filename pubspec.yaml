@@ -1,0 +1,22 @@
+name: flutter_sdui_test
+description: Testing utilities for Flutter SDUI framework. Provides sduiGoldenTest() for side-by-side native vs SDUI golden comparisons.
+version: 0.1.0
+
+environment:
+  sdk: '>=3.0.0 <4.0.0'
+  flutter: '>=3.10.0'
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_test:
+    sdk: flutter
+  flutter_sdui_kit:
+    git:
+      url: git@github.com:chinmay-singh-modak/flutter_sdui_kit.git
+
+dev_dependencies:
+  alchemist: ^0.7.0
+  flutter_lints: ^3.0.0
+
+flutter:
