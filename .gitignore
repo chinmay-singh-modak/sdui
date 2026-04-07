@@ -18,5 +18,8 @@ doc/api/
 coverage/
 lcov.info
 
+# Melos
+pubspec_overrides.yaml
+
 # macOS
 .DS_Store
