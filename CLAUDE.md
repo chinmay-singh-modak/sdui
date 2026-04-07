@@ -6,14 +6,26 @@
 
 A standalone Dart tool that converts annotated Flutter widgets into SDUI (Server-Driven UI) JSON schemas. Fully decoupled from any backend — works offline, no auth required.
 
-### Three-package workspace
+### Workspace structure
 
 ```
 flutter_sdui_converter_workspace/
 ├── flutter_sdui_annotations/   # Lightweight annotations (regular dep in user's app)
 ├── flutter_sdui_converter/     # Heavy converter tool (dev dep in user's app)
-└── flutter_sdui_test/          # Golden test utilities for SDUI vs native comparison
+├── flutter_sdui_test/          # Golden test utilities for SDUI vs native comparison
+└── flutter_sdui_kit/           # SDUI runtime framework — git submodule (read-only here)
 ```
+
+All four directories are git submodules registered in `.gitmodules`. `flutter_sdui_kit` is an external dependency consumed by `flutter_sdui_test`; it is not developed in this workspace — treat it as read-only.
+
+### Submodule remotes
+
+| Submodule                  | Remote                                                             |
+| -------------------------- | ------------------------------------------------------------------ |
+| `flutter_sdui_annotations` | `https://github.com/chinmay-singh-modak/flutter_sdui_annotations` |
+| `flutter_sdui_converter`   | `https://github.com/chinmay-singh-modak/flutter_sdui_converter`   |
+| `flutter_sdui_test`        | `https://github.com/chinmay-singh-modak/flutter_sdui_test`        |
+| `flutter_sdui_kit`         | `https://github.com/chinmay-singh-modak/flutter_sdui_kit`         |
 
 ---
 

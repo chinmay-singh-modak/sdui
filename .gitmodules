@@ -7,3 +7,6 @@
 [submodule "flutter_sdui_test"]
 	path = flutter_sdui_test
 	url = https://github.com/chinmay-singh-modak/flutter_sdui_test
+[submodule "flutter_sdui_kit"]
+	path = flutter_sdui_kit
+	url = https://github.com/chinmay-singh-modak/flutter_sdui_kit
