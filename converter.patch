@@ -1,0 +1,698 @@
+From 11aaba0394f32edb9ede4b711216aeb5a5321732 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Tue, 7 Apr 2026 12:22:09 +0000
+Subject: [PATCH] Add comprehensive dartdoc, fix SduiProp equality bug, export
+ SduiAction
+
+- Add library-level dartdoc to barrel file for pub.dev scoring
+- Add dartdoc to all public API classes, methods, and fields
+- Fix SduiProp.operator== to include defaultValue in equality/hashCode
+- Export sdui_action.dart from models.dart (was missing)
+- Replace placeholder example with real SduiConverter.convert() usage
+
+https://claude.ai/code/session_017xMgca8Hxnc1dGiWnbaGXq
+---
+ example/flutter_sdui_converter_example.dart | 39 ++++++++++++++++++---
+ lib/flutter_sdui_converter.dart             | 21 +++++++++++
+ lib/src/config/config_loader.dart           |  3 ++
+ lib/src/config/sdui_config.dart             | 35 ++++++++++++++++++
+ lib/src/converter.dart                      |  9 ++++-
+ lib/src/differ/schema_differ.dart           |  7 +++-
+ lib/src/emitter/json_emitter.dart           |  4 ++-
+ lib/src/models/models.dart                  |  1 +
+ lib/src/models/schema_diff.dart             | 21 +++++++++++
+ lib/src/models/sdui_action.dart             | 10 ++++++
+ lib/src/models/sdui_component.dart          | 14 ++++++--
+ lib/src/models/sdui_convert_result.dart     | 29 +++++++++++++++
+ lib/src/models/sdui_prop.dart               | 21 +++++++++--
+ lib/src/models/sdui_schema.dart             | 22 ++++++++++++
+ lib/src/parser/component_parser.dart        |  2 ++
+ lib/src/parser/raw_component.dart           | 30 ++++++++++++++++
+ lib/src/scanner/file_scanner.dart           |  2 ++
+ lib/src/transformer/schema_transformer.dart |  2 ++
+ 18 files changed, 260 insertions(+), 12 deletions(-)
+
+diff --git a/example/flutter_sdui_converter_example.dart b/example/flutter_sdui_converter_example.dart
+index 92ad744..74431c6 100644
+--- a/example/flutter_sdui_converter_example.dart
++++ b/example/flutter_sdui_converter_example.dart
+@@ -1,6 +1,37 @@
+-// import 'package:flutter_sdui_converter/flutter_sdui_converter.dart';
++import 'package:flutter_sdui_converter/flutter_sdui_converter.dart';
+ 
+-void main() {
+-  // var awesome = Awesome();
+-  // print('awesome: ${awesome.isAwesome}');
++/// Example: converting a Flutter project to an SDUI JSON schema.
++///
++/// Run this with:
++/// ```bash
++/// dart run example/flutter_sdui_converter_example.dart
++/// ```
++Future<void> main() async {
++  // Convert a Flutter project at the given path.
++  final result = await SduiConverter.convert(
++    projectPath: '.',
++    config: const SduiConfig(
++      outputPath: 'sdui_schema.json',
++      flags: FeatureFlags(strictMode: false),
++    ),
++  );
++
++  // Handle the result.
++  result.fold(
++    onSuccess: (schema) {
++      print('Schema version: ${schema.schemaVersion}');
++      print('Components found: ${schema.components.length}');
++
++      // Emit as JSON.
++      final emitter = JsonEmitter();
++      final json = emitter.emit(schema);
++      print(json);
++    },
++    onError: (errors) {
++      print('Conversion failed:');
++      for (final error in errors) {
++        print('  $error');
++      }
++    },
++  );
+ }
+diff --git a/lib/flutter_sdui_converter.dart b/lib/flutter_sdui_converter.dart
+index 9365417..1bda5c6 100644
+--- a/lib/flutter_sdui_converter.dart
++++ b/lib/flutter_sdui_converter.dart
+@@ -1,3 +1,24 @@
++/// Converts annotated Flutter widgets into SDUI (Server-Driven UI) JSON
++/// schemas.
++///
++/// The converter scans a Flutter project for classes annotated with
++/// `@SduiComponent`, parses their props and actions via the Dart analyzer,
++/// and emits a single JSON schema file describing every component.
++///
++/// ## Quick start
++///
++/// ```dart
++/// import 'package:flutter_sdui_converter/flutter_sdui_converter.dart';
++///
++/// final result = await SduiConverter.convert(projectPath: '.');
++/// result.fold(
++///   onSuccess: (schema) => print(JsonEmitter().emit(schema)),
++///   onError: (errors) => errors.forEach(print),
++/// );
++/// ```
++///
++/// See [SduiConverter.convert] for the full programmatic API and [SduiConfig]
++/// for configuration options.
+ library;
+ 
+ export 'src/config/sdui_config.dart';
+diff --git a/lib/src/config/config_loader.dart b/lib/src/config/config_loader.dart
+index 504246f..278a41b 100644
+--- a/lib/src/config/config_loader.dart
++++ b/lib/src/config/config_loader.dart
+@@ -5,6 +5,9 @@ import 'package:yaml/yaml.dart';
+ 
+ import 'sdui_config.dart';
+ 
++/// Loads [SduiConfig] from `flutter_sdui.yaml` and merges CLI overrides.
++///
++/// If the YAML file is absent, falls back silently to [SduiConfig] defaults.
+ class ConfigLoader {
+   /// Loads config from [projectPath]/flutter_sdui.yaml.
+   /// Falls back to defaults silently if the file is absent.
+diff --git a/lib/src/config/sdui_config.dart b/lib/src/config/sdui_config.dart
+index 0bf8f11..fe4dd6d 100644
+--- a/lib/src/config/sdui_config.dart
++++ b/lib/src/config/sdui_config.dart
+@@ -1,9 +1,25 @@
++/// Configuration for the SDUI converter pipeline.
++///
++/// Construct directly for programmatic use, or let [ConfigLoader] build one
++/// from `flutter_sdui.yaml` with optional CLI overrides.
+ class SduiConfig {
++  /// Schema version stamped into the output JSON (`"schemaVersion"`).
++  ///
++  /// Defaults to `'1.0.0'`. Bump this when your component surface changes.
+   final String version;
++
++  /// File path for the generated JSON schema.
++  ///
++  /// Defaults to `'sdui_schema.json'`.
+   final String outputPath;
++
++  /// Controls which files the scanner includes and excludes.
+   final ScanConfig scan;
++
++  /// Feature flags that alter converter behaviour.
+   final FeatureFlags flags;
+ 
++  /// Creates a new configuration with sensible defaults.
+   const SduiConfig({
+     this.version = '1.0.0',
+     this.outputPath = 'sdui_schema.json',
+@@ -11,6 +27,7 @@ class SduiConfig {
+     this.flags = const FeatureFlags(),
+   });
+ 
++  /// Returns a copy with the given fields replaced.
+   SduiConfig copyWith({
+     String? version,
+     String? outputPath,
+@@ -25,25 +42,43 @@ class SduiConfig {
+       );
+ }
+ 
++/// Glob patterns that control which `.dart` files the scanner processes.
+ class ScanConfig {
++  /// Glob patterns for directories or files to include.
++  ///
++  /// Defaults to `['lib/**']`.
+   final List<String> include;
++
++  /// Glob patterns for files to exclude.
++  ///
++  /// Exclude patterns are applied after include — exclude always wins.
++  /// `**/*.g.dart` and `**/*.freezed.dart` are always excluded regardless of
++  /// this list.
+   final List<String> exclude;
+ 
++  /// Creates scan configuration with default include/exclude patterns.
+   const ScanConfig({
+     this.include = const ['lib/**'],
+     this.exclude = const [],
+   });
+ }
+ 
++/// Feature flags that alter how the converter pipeline behaves.
+ class FeatureFlags {
++  /// When `true`, unknown Dart types cause a hard error instead of falling
++  /// back to the `'any'` SDUI type.
+   final bool strictMode;
++
++  /// When `true`, emits typed prop schemas with constraint metadata.
+   final bool generateTypes;
+ 
++  /// Creates feature flags with all flags disabled by default.
+   const FeatureFlags({
+     this.strictMode = false,
+     this.generateTypes = false,
+   });
+ 
++  /// Returns a copy with the given flags replaced.
+   FeatureFlags copyWith({bool? strictMode, bool? generateTypes}) => FeatureFlags(
+         strictMode: strictMode ?? this.strictMode,
+         generateTypes: generateTypes ?? this.generateTypes,
+diff --git a/lib/src/converter.dart b/lib/src/converter.dart
+index bea0bb8..ca59325 100644
+--- a/lib/src/converter.dart
++++ b/lib/src/converter.dart
+@@ -8,6 +8,10 @@ import 'transformer/schema_transformer.dart';
+ 
+ const _converterVersion = '1.0.0';
+ 
++/// Main entry point for the SDUI conversion pipeline.
++///
++/// Orchestrates scanning, parsing, transforming, and optionally diffing
++/// a Flutter project into an [SduiSchema].
+ class SduiConverter {
+   /// Converts the Flutter project at [projectPath] into an [SduiSchema].
+   ///
+@@ -66,8 +70,11 @@ class _SduiSchemaWithDiff extends SduiSchema {
+         );
+ }
+ 
+-/// Extension to access the diff on a successful result, if one was computed.
++/// Extension to access the [SchemaDiff] on a successful result, if one was
++/// computed by passing `previousSchema` to [SduiConverter.convert].
+ extension SduiSchemaX on SduiSchema {
++  /// The diff against the previous schema, or `null` if no previous schema
++  /// was supplied.
+   SchemaDiff? get diff =>
+       this is _SduiSchemaWithDiff ? (this as _SduiSchemaWithDiff).diff : null;
+ }
+diff --git a/lib/src/differ/schema_differ.dart b/lib/src/differ/schema_differ.dart
+index a733a0d..9454349 100644
+--- a/lib/src/differ/schema_differ.dart
++++ b/lib/src/differ/schema_differ.dart
+@@ -1,7 +1,12 @@
+ import '../models/models.dart';
+ 
+-/// Pure function — no IO. Compares two schemas and categorises changes.
++/// Compares two [SduiSchema] versions and categorises changes as breaking
++/// or non-breaking.
++///
++/// Pure function — performs no IO.
+ class SchemaDiffer {
++  /// Compares [previous] and [current] schemas and returns a [SchemaDiff]
++  /// listing all breaking and non-breaking changes.
+   SchemaDiff diff(SduiSchema previous, SduiSchema current) {
+     final breaking = <BreakingChange>[];
+     final nonBreaking = <NonBreakingChange>[];
+diff --git a/lib/src/emitter/json_emitter.dart b/lib/src/emitter/json_emitter.dart
+index d611433..aed8410 100644
+--- a/lib/src/emitter/json_emitter.dart
++++ b/lib/src/emitter/json_emitter.dart
+@@ -3,13 +3,15 @@ import 'dart:io';
+ 
+ import '../models/sdui_schema.dart';
+ 
++/// Serialises an [SduiSchema] to JSON and optionally writes it to disk.
+ class JsonEmitter {
+   static const _encoder = JsonEncoder.withIndent('  ');
+ 
+   /// Returns the schema as a pretty-printed JSON string. Pure — no IO.
+   String emit(SduiSchema schema) => _encoder.convert(schema.toJson());
+ 
+-  /// Writes the schema JSON to [outputPath].
++  /// Writes the schema JSON to [outputPath], creating parent directories
++  /// if needed.
+   Future<void> writeToFile(SduiSchema schema, String outputPath) async {
+     final file = File(outputPath);
+     await file.parent.create(recursive: true);
+diff --git a/lib/src/models/models.dart b/lib/src/models/models.dart
+index 07b4582..3038842 100644
+--- a/lib/src/models/models.dart
++++ b/lib/src/models/models.dart
+@@ -1,4 +1,5 @@
+ export 'schema_diff.dart';
++export 'sdui_action.dart';
+ export 'sdui_component.dart';
+ export 'sdui_convert_result.dart';
+ export 'sdui_prop.dart';
+diff --git a/lib/src/models/schema_diff.dart b/lib/src/models/schema_diff.dart
+index 41f65ba..eb3b37b 100644
+--- a/lib/src/models/schema_diff.dart
++++ b/lib/src/models/schema_diff.dart
+@@ -1,30 +1,51 @@
++/// The result of comparing two [SduiSchema] versions.
++///
++/// Contains categorised lists of [breaking] and [nonBreaking] changes.
++/// Use [hasBreakingChanges] to quickly check whether consumers may be
++/// affected.
+ class SchemaDiff {
++  /// Changes that may break existing consumers (e.g. prop removed, type
++  /// changed, required prop added).
+   final List<BreakingChange> breaking;
++
++  /// Changes that are safe for existing consumers (e.g. new optional prop,
++  /// new component added).
+   final List<NonBreakingChange> nonBreaking;
+ 
++  /// Creates a diff result.
+   const SchemaDiff({
+     required this.breaking,
+     required this.nonBreaking,
+   });
+ 
++  /// `true` when at least one breaking change was detected.
+   bool get hasBreakingChanges => breaking.isNotEmpty;
++
++  /// `true` when any change (breaking or non-breaking) was detected.
+   bool get hasChanges => breaking.isNotEmpty || nonBreaking.isNotEmpty;
+ 
++  /// An empty diff representing no changes between two schemas.
+   static const SchemaDiff empty = SchemaDiff(breaking: [], nonBreaking: []);
+ }
+ 
++/// A schema change that may break existing consumers.
+ class BreakingChange {
++  /// Human-readable description of the breaking change.
+   final String description;
+ 
++  /// Creates a breaking change entry.
+   const BreakingChange(this.description);
+ 
+   @override
+   String toString() => description;
+ }
+ 
++/// A schema change that is safe for existing consumers.
+ class NonBreakingChange {
++  /// Human-readable description of the non-breaking change.
+   final String description;
+ 
++  /// Creates a non-breaking change entry.
+   const NonBreakingChange(this.description);
+ 
+   @override
+diff --git a/lib/src/models/sdui_action.dart b/lib/src/models/sdui_action.dart
+index 78a357e..7e5b255 100644
+--- a/lib/src/models/sdui_action.dart
++++ b/lib/src/models/sdui_action.dart
+@@ -1,10 +1,20 @@
++/// An action slot on an SDUI component.
++///
++/// Actions represent callback fields (e.g. `onTap`, `onChanged`) that the
++/// server can wire up to client-side handlers. This is the schema *model*
++/// class — distinct from the `@SduiAction` annotation in
++/// `flutter_sdui_annotations`.
+ class SduiAction {
++  /// The action name, matching the Dart callback field name.
+   final String name;
+ 
++  /// Creates an action descriptor.
+   const SduiAction({required this.name});
+ 
++  /// Serialises this action to a JSON-compatible map.
+   Map<String, dynamic> toJson() => {'name': name};
+ 
++  /// Deserialises an action from a JSON map produced by [toJson].
+   factory SduiAction.fromJson(Map<String, dynamic> json) =>
+       SduiAction(name: json['name'] as String);
+ 
+diff --git a/lib/src/models/sdui_component.dart b/lib/src/models/sdui_component.dart
+index 3c4c689..05e7992 100644
+--- a/lib/src/models/sdui_component.dart
++++ b/lib/src/models/sdui_component.dart
+@@ -2,28 +2,36 @@ import 'sdui_prop.dart';
+ 
+ /// A schema entry describing a single SDUI component.
+ ///
+-/// [type] matches the `"type"` field in a [SduiNode] from `flutter_sdui_kit`
++/// [type] matches the `"type"` field in a `SduiNode` from `flutter_sdui_kit`
+ /// (e.g. `"button"`, `"text"`).
+ ///
+-/// [supportsAction] mirrors the single `action` slot on `SduiNode` — true when
+-/// the underlying Flutter widget has at least one `@SduiAction` callback.
++/// [supportsAction] mirrors the single `action` slot on `SduiNode` — `true`
++/// when the underlying Flutter widget has at least one `@SduiAction` callback.
+ class SduiComponent {
++  /// The component type identifier used in JSON (e.g. `'PrimaryButton'`).
+   final String type;
++
++  /// The props this component accepts.
+   final List<SduiProp> props;
++
++  /// Whether this component supports an action callback slot.
+   final bool supportsAction;
+ 
++  /// Creates a component descriptor.
+   const SduiComponent({
+     required this.type,
+     required this.props,
+     this.supportsAction = false,
+   });
+ 
++  /// Serialises this component to a JSON-compatible map.
+   Map<String, dynamic> toJson() => {
+         'type': type,
+         'props': props.map((p) => p.toJson()).toList(),
+         'supportsAction': supportsAction,
+       };
+ 
++  /// Deserialises a component from a JSON map produced by [toJson].
+   factory SduiComponent.fromJson(Map<String, dynamic> json) => SduiComponent(
+         type: json['type'] as String,
+         props: (json['props'] as List<dynamic>)
+diff --git a/lib/src/models/sdui_convert_result.dart b/lib/src/models/sdui_convert_result.dart
+index 0ddbfbc..f37cf15 100644
+--- a/lib/src/models/sdui_convert_result.dart
++++ b/lib/src/models/sdui_convert_result.dart
+@@ -1,3 +1,14 @@
++/// A Result type that holds either a success value of type [S] or an error
++/// of type [E].
++///
++/// Use [fold] for side-effects and [map] to transform the contained value:
++///
++/// ```dart
++/// result.fold(
++///   onSuccess: (schema) => print(schema),
++///   onError: (errors) => errors.forEach(print),
++/// );
++/// ```
+ class SduiConvertResult<S, E> {
+   final S? _success;
+   final E? _error;
+@@ -13,15 +24,21 @@ class SduiConvertResult<S, E> {
+         _error = error,
+         _isSuccess = false;
+ 
++  /// Creates a successful result wrapping [value].
+   factory SduiConvertResult.success(S value) =>
+       SduiConvertResult._success(value);
+ 
++  /// Creates a failed result wrapping [error].
+   factory SduiConvertResult.failure(E error) =>
+       SduiConvertResult._failure(error);
+ 
++  /// `true` when this result represents a successful conversion.
+   bool get isSuccess => _isSuccess;
++
++  /// `true` when this result represents a failed conversion.
+   bool get isFailure => !_isSuccess;
+ 
++  /// Calls [onSuccess] or [onError] depending on the result state.
+   void fold({
+     required void Function(S) onSuccess,
+     required void Function(E) onError,
+@@ -33,6 +50,8 @@ class SduiConvertResult<S, E> {
+     }
+   }
+ 
++  /// Transforms the result by calling [onSuccess] or [onError] and returning
++  /// the produced value.
+   T map<T>({
+     required T Function(S) onSuccess,
+     required T Function(E) onError,
+@@ -45,11 +64,21 @@ class SduiConvertResult<S, E> {
+   }
+ }
+ 
++/// An error encountered during SDUI conversion.
++///
++/// Carries a human-readable [message] and optional source location
++/// ([file] and [line]).
+ class SduiConvertError {
++  /// Human-readable description of the error.
+   final String message;
++
++  /// The source file where the error occurred, if known.
+   final String? file;
++
++  /// The line number where the error occurred, if known.
+   final int? line;
+ 
++  /// Creates a conversion error.
+   const SduiConvertError({
+     required this.message,
+     this.file,
+diff --git a/lib/src/models/sdui_prop.dart b/lib/src/models/sdui_prop.dart
+index 4a0d367..6b48e19 100644
+--- a/lib/src/models/sdui_prop.dart
++++ b/lib/src/models/sdui_prop.dart
+@@ -1,9 +1,23 @@
++/// A single property in an SDUI component's schema.
++///
++/// Each prop maps a Dart constructor parameter annotated with `@SduiProp()`
++/// to an SDUI type string (e.g. `'string'`, `'integer'`, `'boolean'`).
+ class SduiProp {
++  /// The prop name, matching the Dart field name.
+   final String name;
++
++  /// The SDUI type string (e.g. `'string'`, `'integer'`, `'any'`).
+   final String type;
++
++  /// Whether the prop must be provided by the server.
++  ///
++  /// `true` when the Dart parameter is non-nullable and has no default value.
+   final bool required;
++
++  /// The default value for this prop, or `null` if none.
+   final dynamic defaultValue;
+ 
++  /// Creates a prop descriptor.
+   const SduiProp({
+     required this.name,
+     required this.type,
+@@ -11,6 +25,7 @@ class SduiProp {
+     this.defaultValue,
+   });
+ 
++  /// Serialises this prop to a JSON-compatible map.
+   Map<String, dynamic> toJson() {
+     final map = <String, dynamic>{
+       'name': name,
+@@ -23,6 +38,7 @@ class SduiProp {
+     return map;
+   }
+ 
++  /// Deserialises a prop from a JSON map produced by [toJson].
+   factory SduiProp.fromJson(Map<String, dynamic> json) => SduiProp(
+         name: json['name'] as String,
+         type: json['type'] as String,
+@@ -35,8 +51,9 @@ class SduiProp {
+       other is SduiProp &&
+       other.name == name &&
+       other.type == type &&
+-      other.required == required;
++      other.required == required &&
++      other.defaultValue == defaultValue;
+ 
+   @override
+-  int get hashCode => Object.hash(name, type, required);
++  int get hashCode => Object.hash(name, type, required, defaultValue);
+ }
+diff --git a/lib/src/models/sdui_schema.dart b/lib/src/models/sdui_schema.dart
+index 583cf65..7397bd8 100644
+--- a/lib/src/models/sdui_schema.dart
++++ b/lib/src/models/sdui_schema.dart
+@@ -1,12 +1,32 @@
+ import 'sdui_component.dart';
+ 
++/// The root schema object produced by the converter.
++///
++/// Contains metadata about the generation run and a list of every
++/// [SduiComponent] found in the scanned project.
++///
++/// Serialise with [toJson] and deserialise with [SduiSchema.fromJson].
+ class SduiSchema {
++  /// Developer-controlled version from `flutter_sdui.yaml`.
++  ///
++  /// Tracks the *content* of the schema — bump when components change.
+   final String schemaVersion;
++
++  /// UTC timestamp of when this schema was generated.
+   final DateTime generatedAt;
++
++  /// Identifies the tool that produced this schema.
++  ///
++  /// Always `'flutter_sdui_converter'`.
+   final String generatedBy;
++
++  /// Version of the `flutter_sdui_converter` package that produced this schema.
+   final String converterVersion;
++
++  /// All SDUI components discovered during the scan.
+   final List<SduiComponent> components;
+ 
++  /// Creates a new schema instance.
+   const SduiSchema({
+     required this.schemaVersion,
+     required this.generatedAt,
+@@ -15,6 +35,7 @@ class SduiSchema {
+     required this.components,
+   });
+ 
++  /// Serialises this schema to a JSON-compatible map.
+   Map<String, dynamic> toJson() => {
+         'schemaVersion': schemaVersion,
+         'generatedAt': generatedAt.toUtc().toIso8601String(),
+@@ -23,6 +44,7 @@ class SduiSchema {
+         'components': components.map((c) => c.toJson()).toList(),
+       };
+ 
++  /// Deserialises a schema from a JSON map produced by [toJson].
+   factory SduiSchema.fromJson(Map<String, dynamic> json) => SduiSchema(
+         schemaVersion: json['schemaVersion'] as String,
+         generatedAt: DateTime.parse(json['generatedAt'] as String),
+diff --git a/lib/src/parser/component_parser.dart b/lib/src/parser/component_parser.dart
+index e1a1f52..cb39b27 100644
+--- a/lib/src/parser/component_parser.dart
++++ b/lib/src/parser/component_parser.dart
+@@ -7,6 +7,8 @@ import 'package:analyzer/dart/ast/visitor.dart';
+ 
+ import 'raw_component.dart';
+ 
++/// Parses Dart source files using the analyzer AST and extracts
++/// [RawComponent] descriptors for classes annotated with `@SduiComponent`.
+ class ComponentParser {
+   /// Parses all [files] and returns components annotated with @SduiComponent.
+   Future<List<RawComponent>> parse(List<File> files) async {
+diff --git a/lib/src/parser/raw_component.dart b/lib/src/parser/raw_component.dart
+index 8e969d4..9532e50 100644
+--- a/lib/src/parser/raw_component.dart
++++ b/lib/src/parser/raw_component.dart
+@@ -1,10 +1,25 @@
++/// Intermediate representation of an `@SduiComponent`-annotated class
++/// extracted from the Dart AST.
++///
++/// Produced by [ComponentParser] and consumed by [SchemaTransformer] which
++/// maps Dart types to SDUI types and builds the final [SduiSchema].
+ class RawComponent {
++  /// The Dart class name (e.g. `'PrimaryButton'`).
+   final String widgetClassName;
++
++  /// The SDUI name from the `@SduiComponent(name: ...)` annotation.
+   final String sduiName;
++
++  /// Props annotated with `@SduiProp()`.
+   final List<RawProp> props;
++
++  /// Callbacks annotated with `@SduiAction()`.
+   final List<RawAction> actions;
++
++  /// The file path where this component was found.
+   final String sourceFile;
+ 
++  /// Creates a raw component descriptor.
+   const RawComponent({
+     required this.widgetClassName,
+     required this.sduiName,
+@@ -14,13 +29,25 @@ class RawComponent {
+   });
+ }
+ 
++/// A raw property extracted from a constructor parameter annotated with
++/// `@SduiProp()`.
+ class RawProp {
++  /// The Dart field name.
+   final String fieldName;
++
++  /// The Dart type as a string (e.g. `'String'`, `'int'`, `'Color'`).
+   final String dartType;
++
++  /// Whether the Dart type is nullable (ends with `?`).
+   final bool isNullable;
++
++  /// The default value, if one was specified in the annotation or constructor.
+   final dynamic defaultValue;
++
++  /// Whether any default value was found (annotation or constructor default).
+   final bool hasDefaultValue;
+ 
++  /// Creates a raw prop descriptor.
+   const RawProp({
+     required this.fieldName,
+     required this.dartType,
+@@ -30,8 +57,11 @@ class RawProp {
+   });
+ }
+ 
++/// A raw action extracted from a field annotated with `@SduiAction()`.
+ class RawAction {
++  /// The Dart callback field name (e.g. `'onTap'`).
+   final String fieldName;
+ 
++  /// Creates a raw action descriptor.
+   const RawAction({required this.fieldName});
+ }
+diff --git a/lib/src/scanner/file_scanner.dart b/lib/src/scanner/file_scanner.dart
+index defc46c..4c1fa8e 100644
+--- a/lib/src/scanner/file_scanner.dart
++++ b/lib/src/scanner/file_scanner.dart
+@@ -9,6 +9,8 @@ import '../config/sdui_config.dart';
+ /// Auto-excluded regardless of user config.
+ const _autoExclude = ['**/*.g.dart', '**/*.freezed.dart'];
+ 
++/// Discovers `.dart` files in a project using glob-based include/exclude
++/// patterns from [ScanConfig].
+ class FileScanner {
+   /// Returns all `.dart` files under [projectPath] that match [config].
+   ///
+diff --git a/lib/src/transformer/schema_transformer.dart b/lib/src/transformer/schema_transformer.dart
+index b5280ca..032430d 100644
+--- a/lib/src/transformer/schema_transformer.dart
++++ b/lib/src/transformer/schema_transformer.dart
+@@ -34,6 +34,8 @@ String? _mapType(String dartType) {
+   return null;
+ }
+ 
++/// Converts [RawComponent] data from the parser into a typed [SduiSchema],
++/// mapping Dart types to SDUI type strings.
+ class SchemaTransformer {
+   /// Converts raw AST data into a [SduiSchema].
+   ///
+-- 
+2.43.0
+
