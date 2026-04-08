@@ -1,0 +1,14 @@
+name: flutter_sdui_annotations
+description: Annotations for marking Flutter widgets as Server-Driven UI components. Used with flutter_sdui_converter.
+version: 1.0.0
+repository: https://github.com/chinmay-singh-modak/flutter_sdui_annotations
+
+environment:
+  sdk: ^3.4.0
+
+dependencies:
+  meta: ^1.9.0
+
+dev_dependencies:
+  lints: ^6.0.0
+  test: ^1.24.0
