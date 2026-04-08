@@ -1,5 +1,12 @@
 # Changelog
 
+## [1.0.1](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_test-v1.0.0...flutter_sdui_test-v1.0.1) (2026-04-08)
+
+
+### Bug Fixes
+
+* **flutter_sdui_test:** update installation URL and add monorepo workspace links ([ee42ac1](https://github.com/chinmay-singh-modak/sdui/commit/ee42ac12bdbbcf57865c47eb41f5e79e6c271f43))
+
 ## 1.0.0
 
 - Initial release of `flutter_sdui_test` — golden test utilities for comparing native Flutter widgets against their SDUI-rendered equivalents.
