@@ -9,9 +9,7 @@ Golden test utilities for the Flutter SDUI framework. Drop it in `dev_dependenci
 ```yaml
 # pubspec.yaml
 dev_dependencies:
-  flutter_sdui_test:
-    git:
-      url: git@github.com:chinmay-singh-modak/flutter_sdui_test.git
+  flutter_sdui_test: ^1.0.0
 ```
 
 ---
@@ -148,11 +146,13 @@ When `threshold > 0.0`, `sduiGoldenTest` installs a custom `goldenFileComparator
 
 ---
 
-## Part of the flutter_sdui_kit workspace
+## Part of the flutter_sdui workspace
 
-| Package                    | Role                                         |
-| -------------------------- | -------------------------------------------- |
-| `flutter_sdui_annotations` | Annotations                                  |
-| `flutter_sdui_converter`   | CLI + programmatic converter tool            |
-| `flutter_sdui_test`        | Golden test utilities (this package)         |
-| `flutter_sdui_kit`         | SDUI runtime renderer (`SduiWidget`)         |
+This package is developed in the [chinmay-singh-modak/sdui_workspace](https://github.com/chinmay-singh-modak/sdui_workspace) monorepo alongside the rest of the toolchain.
+
+| Package | Role | pub.dev |
+| ------- | ---- | ------- |
+| `flutter_sdui_annotations` | Annotations | [pub.dev/packages/flutter_sdui_annotations](https://pub.dev/packages/flutter_sdui_annotations) |
+| `flutter_sdui_converter` | CLI + programmatic converter tool | [pub.dev/packages/flutter_sdui_converter](https://pub.dev/packages/flutter_sdui_converter) |
+| `flutter_sdui_test` | Golden test utilities (this package) | [pub.dev/packages/flutter_sdui_test](https://pub.dev/packages/flutter_sdui_test) |
+| `flutter_sdui_kit` | SDUI runtime renderer (`SduiWidget`) | [pub.dev/packages/flutter_sdui_kit](https://pub.dev/packages/flutter_sdui_kit) |
