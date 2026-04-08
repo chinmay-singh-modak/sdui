@@ -1,5 +1,6 @@
 {
   "$schema": "https://raw.githubusercontent.com/googleapis/release-please/main/schemas/config.json",
+  "bootstrap-sha": "0e3942f79a3b8f23dbb8a9039940135e83e9cb1a",
   "packages": {
     "packages/flutter_sdui_annotations": {
       "release-type": "dart",
