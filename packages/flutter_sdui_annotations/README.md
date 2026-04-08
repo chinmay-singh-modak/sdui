@@ -4,6 +4,9 @@ Lightweight annotations for marking Flutter widgets as SDUI (Server-Driven UI) c
 
 Add this as a regular `dependency` in your app — it has zero heavy dependencies (only `meta`) and no analyzer coupling.
 
+> **Step 1 of 4 in the flutter_sdui toolchain.**
+> Annotate your widgets here → [`flutter_sdui_converter`](https://pub.dev/packages/flutter_sdui_converter) scans them and emits a JSON schema → [`flutter_sdui_kit`](https://pub.dev/packages/flutter_sdui_kit) renders that JSON at runtime → [`flutter_sdui_test`](https://pub.dev/packages/flutter_sdui_test) verifies it visually.
+
 ---
 
 ## Installation
@@ -77,7 +80,7 @@ class PrimaryButton extends StatelessWidget {
 }
 ```
 
-Running `flutter_sdui_converter` on the above produces:
+Running [`flutter_sdui_converter`](https://pub.dev/packages/flutter_sdui_converter) on the above produces:
 
 ```json
 {
@@ -89,6 +92,8 @@ Running `flutter_sdui_converter` on the above produces:
   "supportsAction": true
 }
 ```
+
+This schema is consumed at runtime by [`flutter_sdui_kit`](https://pub.dev/packages/flutter_sdui_kit)'s `SduiWidget`. Use [`flutter_sdui_test`](https://pub.dev/packages/flutter_sdui_test) to visually verify that the rendered output matches your native widget.
 
 ---
 

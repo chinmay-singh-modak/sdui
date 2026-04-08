@@ -1,6 +1,6 @@
-# flutter_sdui_kit — Workspace
+# flutter_sdui — Workspace
 
-Monorepo for the Flutter SDUI toolchain. Contains the annotations, converter, and test utilities that let you convert annotated Flutter widgets into SDUI JSON schemas.
+Monorepo for the Flutter SDUI toolchain. Annotate your widgets, convert them to a JSON schema, render them server-side, and verify with golden tests — all from one place.
 
 ```
 flutter_sdui_converter_workspace/
@@ -16,14 +16,26 @@ All four packages live under `packages/` in this monorepo and are managed with [
 
 ---
 
+## How the packages connect
+
+```text
+1. Annotate widgets       flutter_sdui_annotations
+         ↓
+2. Generate JSON schema   flutter_sdui_converter
+         ↓
+3. Render at runtime      flutter_sdui_kit   ← your server sends the JSON
+         ↓
+4. Verify visually        flutter_sdui_test  ← golden diff: native vs SDUI
+```
+
 ## Packages
 
-| Package                    | pub.dev version | Role                                              |
-| -------------------------- | --------------- | ------------------------------------------------- |
-| `flutter_sdui_annotations` | `^1.0.0`        | Annotations: `@SduiComponent`, `@SduiProp`, `@SduiAction` |
-| `flutter_sdui_converter`   | `^1.0.0`        | CLI + programmatic converter — scans AST, emits JSON schema |
-| `flutter_sdui_test`        | `^1.0.0`        | Golden test helpers — `sduiGoldenTest()`, device presets |
-| `flutter_sdui_kit`         | `^0.3.1`        | Runtime renderer — `SduiWidget`, `ActionHandler`             |
+| Package | Version | Role | pub.dev |
+| ------- | ------- | ---- | ------- |
+| [`flutter_sdui_annotations`](packages/flutter_sdui_annotations/) | `^1.0.0` | Mark widgets with `@SduiComponent`, `@SduiProp`, `@SduiAction` | [pub.dev](https://pub.dev/packages/flutter_sdui_annotations) |
+| [`flutter_sdui_converter`](packages/flutter_sdui_converter/) | `^1.0.0` | Scan annotated widgets, emit JSON schema | [pub.dev](https://pub.dev/packages/flutter_sdui_converter) |
+| [`flutter_sdui_kit`](packages/flutter_sdui_kit/) | `^0.3.1` | Runtime renderer — `SduiWidget`, `ActionHandler` | [pub.dev](https://pub.dev/packages/flutter_sdui_kit) |
+| [`flutter_sdui_test`](packages/flutter_sdui_test/) | `^1.0.0` | Golden test helpers — `sduiGoldenTest()`, device presets | [pub.dev](https://pub.dev/packages/flutter_sdui_test) |
 
 ---
 
@@ -96,24 +108,11 @@ Output:
 ## Cloning
 
 ```bash
-git clone git@github.com:chinmay-singh-modak/sdui_workspace.git
-cd sdui_workspace
+git clone git@github.com:chinmay-singh-modak/sdui.git
+cd sdui
 dart pub global activate melos
 melos bootstrap
 ```
-
----
-
-## Repository
-
-All packages are in a single repo: [chinmay-singh-modak/sdui_workspace](https://github.com/chinmay-singh-modak/sdui_workspace)
-
-| Package                    | Path in repo                          | pub.dev |
-| -------------------------- | ------------------------------------- | ------- |
-| `flutter_sdui_annotations` | `packages/flutter_sdui_annotations/` | [pub.dev/packages/flutter_sdui_annotations](https://pub.dev/packages/flutter_sdui_annotations) |
-| `flutter_sdui_converter`   | `packages/flutter_sdui_converter/`   | [pub.dev/packages/flutter_sdui_converter](https://pub.dev/packages/flutter_sdui_converter) |
-| `flutter_sdui_test`        | `packages/flutter_sdui_test/`        | [pub.dev/packages/flutter_sdui_test](https://pub.dev/packages/flutter_sdui_test) |
-| `flutter_sdui_kit`         | `packages/flutter_sdui_kit/`         | [pub.dev/packages/flutter_sdui_kit](https://pub.dev/packages/flutter_sdui_kit) |
 
 ---
 

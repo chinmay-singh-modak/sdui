@@ -4,6 +4,9 @@ Scans an annotated Flutter project and emits a single SDUI (Server-Driven UI) JS
 
 Add as a `dev_dependency` in your app. The built-in CLI and the programmatic API are both supported.
 
+> **Step 2 of 4 in the flutter_sdui toolchain.**
+> [`flutter_sdui_annotations`](https://pub.dev/packages/flutter_sdui_annotations) marks your widgets → **this package** scans them and emits a JSON schema → [`flutter_sdui_kit`](https://pub.dev/packages/flutter_sdui_kit) renders that JSON at runtime → [`flutter_sdui_test`](https://pub.dev/packages/flutter_sdui_test) verifies it visually.
+
 ---
 
 ## Installation
@@ -188,6 +191,8 @@ FileScanner  →  ComponentParser  →  SchemaTransformer  →  (SchemaDiffer)  
 ```
 
 Each stage is an independent class with a single public method. No I/O in the parser or transformer — only in the scanner and emitter.
+
+The emitted JSON is consumed at runtime by [`flutter_sdui_kit`](https://pub.dev/packages/flutter_sdui_kit)'s `SduiWidget`. Use the schema files as fixtures with [`flutter_sdui_test`](https://pub.dev/packages/flutter_sdui_test) to verify rendering.
 
 ---
 

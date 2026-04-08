@@ -5,6 +5,9 @@
 
 A **server-driven UI** framework for Flutter. Your server sends JSON → the SDK renders native widgets. Ship UI changes instantly — no app-store release.
 
+> **Step 3 of 4 in the flutter_sdui toolchain.**
+> [`flutter_sdui_annotations`](https://pub.dev/packages/flutter_sdui_annotations) marks your widgets → [`flutter_sdui_converter`](https://pub.dev/packages/flutter_sdui_converter) emits the JSON schema → **this package** renders it at runtime → [`flutter_sdui_test`](https://pub.dev/packages/flutter_sdui_test) verifies it visually.
+
 ---
 
 ## Quick Start
@@ -53,7 +56,7 @@ That's the complete setup. Everything below is reference.
 
 ## How It Works
 
-```
+```text
 Server JSON  →  SduiWidget  →  Flutter Widgets
 ```
 
