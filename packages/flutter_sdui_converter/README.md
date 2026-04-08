@@ -191,11 +191,13 @@ Each stage is an independent class with a single public method. No I/O in the pa
 
 ---
 
-## Part of the flutter_sdui_kit workspace
+## Part of the flutter_sdui workspace
 
-| Package                    | Role                                        |
-| -------------------------- | ------------------------------------------- |
-| `flutter_sdui_annotations` | Annotations                                 |
-| `flutter_sdui_converter`   | CLI + programmatic converter (this package) |
-| `flutter_sdui_test`        | Golden test utilities                       |
-| `flutter_sdui_kit`         | SDUI runtime renderer (`SduiWidget`)        |
+This package is developed in the [chinmay-singh-modak/sdui_workspace](https://github.com/chinmay-singh-modak/sdui_workspace) monorepo alongside the rest of the toolchain.
+
+| Package | Role | pub.dev |
+| ------- | ---- | ------- |
+| `flutter_sdui_annotations` | Annotations | [pub.dev/packages/flutter_sdui_annotations](https://pub.dev/packages/flutter_sdui_annotations) |
+| `flutter_sdui_converter` | CLI + programmatic converter (this package) | [pub.dev/packages/flutter_sdui_converter](https://pub.dev/packages/flutter_sdui_converter) |
+| `flutter_sdui_test` | Golden test utilities | [pub.dev/packages/flutter_sdui_test](https://pub.dev/packages/flutter_sdui_test) |
+| `flutter_sdui_kit` | SDUI runtime renderer (`SduiWidget`) | [pub.dev/packages/flutter_sdui_kit](https://pub.dev/packages/flutter_sdui_kit) |
