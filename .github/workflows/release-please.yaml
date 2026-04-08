@@ -1,0 +1,35 @@
+name: Release Please
+
+# Runs on every push to main. Release Please analyzes conventional commits
+# and creates/updates a Release PR per package that has unreleased changes.
+#
+# Commit format:
+#   feat: add new component        → minor bump (0.x.x → 0.x+1.0 or 1.x.x → 1.x+1.0)
+#   fix: correct prop parsing      → patch bump
+#   feat!: rename SduiWidget API   → major bump (or minor if package is pre-1.0)
+#   chore/docs/refactor            → no release PR
+#
+# Merging a Release PR automatically:
+#   1. Bumps version in pubspec.yaml
+#   2. Updates CHANGELOG.md
+#   3. Creates a git tag (e.g. flutter_sdui_annotations-v1.0.1)
+#   4. Creates a GitHub Release with the changelog
+#   → which triggers publish.yaml → pub.dev
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  release-please:
+    name: Release Please
+    runs-on: ubuntu-latest
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          config-file: .release-please-config.json
+          manifest-file: .release-please-manifest.json

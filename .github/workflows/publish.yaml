@@ -1,14 +1,11 @@
 name: Publish
 
-# Tag convention: <package_name>-v<semver>
-# Examples:
-#   flutter_sdui_annotations-v1.0.1
-#   flutter_sdui_converter-v1.1.0
-#   flutter_sdui_kit-v0.4.0
-#   flutter_sdui_test-v1.0.1
+# Triggered automatically by release-please when it creates a tag after a
+# Release PR is merged. Tags follow the pattern: <package_name>-v<semver>
 #
-# pub.dev automated publishing (OIDC) must be configured per-package at:
+# pub.dev OIDC automated publishing must be configured once per package at:
 # https://pub.dev/packages/<package>/admin → Automated publishing → GitHub Actions
+# Repository: chinmay-singh-modak/sdui_workspace
 
 on:
   push:
@@ -18,6 +15,7 @@ on:
       - 'flutter_sdui_kit-v[0-9]*'
       - 'flutter_sdui_test-v[0-9]*'
 
+  # Manual override: useful for republishing or testing publish flow
   workflow_dispatch:
     inputs:
       package:
@@ -56,23 +54,16 @@ jobs:
       - name: Bootstrap
         run: melos bootstrap
 
-      # Resolve which package to publish (tag vs manual dispatch)
       - name: Resolve package name
         id: pkg
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
             echo "name=${{ inputs.package }}" >> "$GITHUB_OUTPUT"
           else
-            # Extract package name from tag: flutter_sdui_annotations-v1.0.1 → flutter_sdui_annotations
+            # Extract from tag: flutter_sdui_annotations-v1.0.1 → flutter_sdui_annotations
             PKG=$(echo "${{ github.ref_name }}" | sed 's/-v[0-9].*//')
             echo "name=$PKG" >> "$GITHUB_OUTPUT"
           fi
-
-      - name: Resolve version
-        id: ver
-        run: |
-          VERSION=$(grep '^version:' packages/${{ steps.pkg.outputs.name }}/pubspec.yaml | awk '{print $2}')
-          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
 
       - name: Dry-run publish
         working-directory: packages/${{ steps.pkg.outputs.name }}
@@ -84,12 +75,3 @@ jobs:
           (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)
         working-directory: packages/${{ steps.pkg.outputs.name }}
         run: dart pub publish --force
-
-      - name: Create GitHub release
-        if: github.event_name == 'push'
-        env:
-          GH_TOKEN: ${{ github.token }}
-        run: |
-          gh release create "${{ github.ref_name }}" \
-            --title "${{ steps.pkg.outputs.name }} v${{ steps.ver.outputs.version }}" \
-            --generate-notes
