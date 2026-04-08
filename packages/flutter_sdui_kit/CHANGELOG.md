@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.3.2](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_kit-v0.3.1...flutter_sdui_kit-v0.3.2) (2026-04-08)
+
+
+### Bug Fixes
+
+* **flutter_sdui_kit:** update version in install example and add monorepo workspace links ([b167b63](https://github.com/chinmay-singh-modak/sdui/commit/b167b63c3ebfccade08014df09dc48a053e4fa0f))
+
 ## 0.3.1
 
 ### Bug Fixes
