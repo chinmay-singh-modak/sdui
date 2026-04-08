@@ -1,0 +1,34 @@
+# .github/workflows/ci.yml
+#
+# Runs on every push and pull request to master.
+# Ensures the package analyzes cleanly and all tests pass.
+#
+name: CI
+
+on:
+  push:
+    branches: [master]
+  pull_request:
+    branches: [master]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze
+        run: dart analyze --fatal-infos
+
+      - name: Run tests
+        run: flutter test
+
+      - name: Dry-run publish (verify package is valid)
+        run: dart pub publish --dry-run

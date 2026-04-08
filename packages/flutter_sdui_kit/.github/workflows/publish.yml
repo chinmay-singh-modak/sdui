@@ -1,0 +1,40 @@
+# .github/workflows/publish.yml
+#
+# Automatically publishes to pub.dev when you push a version tag.
+#
+# Usage:
+#   git tag v0.2.1
+#   git push origin v0.2.1
+#
+# Prerequisites (one-time setup on pub.dev):
+#   1. Go to https://pub.dev/packages/flutter_sdui_kit/admin
+#   2. Click "Enable publishing from GitHub Actions"
+#   3. Set repository to: Chinmay575/flutter_sdui_kit
+#   4. Set tag pattern to: v{{version}}
+#
+name: Publish to pub.dev
+
+on:
+  push:
+    tags:
+      - 'v[0-9]+.[0-9]+.[0-9]+'  # tag-pattern on pub.dev: 'v{{version}}'
+
+jobs:
+  # ── Run tests before publishing ────────────────────────────
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+      - run: flutter pub get
+      - run: dart analyze
+      - run: flutter test
+
+  # ── Publish to pub.dev (uses Dart's reusable workflow) ─────
+  publish:
+    needs: test  # only publish if tests pass
+    permissions:
+      id-token: write  # Required for OIDC authentication with pub.dev
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
