@@ -23,21 +23,25 @@ scripts:
       concurrency: 3
     description: Check formatting across all packages
 
-  test:
+  test:dart:
     run: dart test
     exec:
       concurrency: 1
     packageFilters:
       dirExists: test
-      dependsOn:
-        - test
-    description: Run tests across all pure-Dart packages
+      ignore:
+        - flutter_sdui_kit
+        - flutter_sdui_test
+    description: Run tests for pure-Dart packages (annotations, converter)
 
   test:flutter:
     run: flutter test
+    exec:
+      concurrency: 1
     packageFilters:
+      dirExists: test
       dependsOn: flutter
-    description: Run Flutter tests (flutter_sdui_test, flutter_sdui_kit)
+    description: Run Flutter tests (flutter_sdui_kit, flutter_sdui_test)
 
   build:runner:
     run: dart run build_runner build --delete-conflicting-outputs

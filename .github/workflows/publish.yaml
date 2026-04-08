@@ -1,0 +1,95 @@
+name: Publish
+
+# Tag convention: <package_name>-v<semver>
+# Examples:
+#   flutter_sdui_annotations-v1.0.1
+#   flutter_sdui_converter-v1.1.0
+#   flutter_sdui_kit-v0.4.0
+#   flutter_sdui_test-v1.0.1
+#
+# pub.dev automated publishing (OIDC) must be configured per-package at:
+# https://pub.dev/packages/<package>/admin → Automated publishing → GitHub Actions
+
+on:
+  push:
+    tags:
+      - 'flutter_sdui_annotations-v[0-9]*'
+      - 'flutter_sdui_converter-v[0-9]*'
+      - 'flutter_sdui_kit-v[0-9]*'
+      - 'flutter_sdui_test-v[0-9]*'
+
+  workflow_dispatch:
+    inputs:
+      package:
+        description: Package to publish
+        required: true
+        type: choice
+        options:
+          - flutter_sdui_annotations
+          - flutter_sdui_converter
+          - flutter_sdui_kit
+          - flutter_sdui_test
+      dry_run:
+        description: Dry run only (no actual publish)
+        type: boolean
+        default: true
+
+permissions:
+  id-token: write  # Required for pub.dev OIDC automated publishing
+
+jobs:
+  publish:
+    name: Publish
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install Melos
+        run: dart pub global activate melos
+
+      - name: Bootstrap
+        run: melos bootstrap
+
+      # Resolve which package to publish (tag vs manual dispatch)
+      - name: Resolve package name
+        id: pkg
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            echo "name=${{ inputs.package }}" >> "$GITHUB_OUTPUT"
+          else
+            # Extract package name from tag: flutter_sdui_annotations-v1.0.1 → flutter_sdui_annotations
+            PKG=$(echo "${{ github.ref_name }}" | sed 's/-v[0-9].*//')
+            echo "name=$PKG" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Resolve version
+        id: ver
+        run: |
+          VERSION=$(grep '^version:' packages/${{ steps.pkg.outputs.name }}/pubspec.yaml | awk '{print $2}')
+          echo "version=$VERSION" >> "$GITHUB_OUTPUT"
+
+      - name: Dry-run publish
+        working-directory: packages/${{ steps.pkg.outputs.name }}
+        run: dart pub publish --dry-run
+
+      - name: Publish to pub.dev
+        if: |
+          github.event_name == 'push' ||
+          (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)
+        working-directory: packages/${{ steps.pkg.outputs.name }}
+        run: dart pub publish --force
+
+      - name: Create GitHub release
+        if: github.event_name == 'push'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh release create "${{ github.ref_name }}" \
+            --title "${{ steps.pkg.outputs.name }} v${{ steps.ver.outputs.version }}" \
+            --generate-notes
