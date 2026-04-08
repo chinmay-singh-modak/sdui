@@ -1,10 +1,10 @@
 name: flutter_sdui_workspace
 
 packages:
-  - flutter_sdui_annotations
-  - flutter_sdui_converter
-  - flutter_sdui_test
-  - flutter_sdui_kit
+  - packages/*
+
+ide:
+  intellij: true
 
 command:
   bootstrap:
@@ -25,20 +25,40 @@ scripts:
 
   test:
     run: dart test
-    packageFilters:
-      dirExists: test
     exec:
       concurrency: 1
-    description: Run tests across all packages
+    packageFilters:
+      dirExists: test
+      dependsOn:
+        - test
+    description: Run tests across all pure-Dart packages
 
   test:flutter:
     run: flutter test
     packageFilters:
       dependsOn: flutter
-    description: Run Flutter tests (flutter_sdui_test)
+    description: Run Flutter tests (flutter_sdui_test, flutter_sdui_kit)
+
+  build:runner:
+    run: dart run build_runner build --delete-conflicting-outputs
+    packageFilters:
+      dependsOn: build_runner
+    description: Run build_runner for packages that need code generation
+
+  clean:
+    run: melos exec -- "flutter clean" || true
+    packageFilters:
+      dependsOn: flutter
+    description: Clean Flutter packages
 
   publish:dry:
     run: dart pub publish --dry-run
     exec:
       concurrency: 1
-    description: Dry-run publish for all packages
+    description: Dry-run publish check for all packages
+
+  publish:
+    run: dart pub publish
+    exec:
+      concurrency: 1
+    description: Publish all packages to pub.dev
