@@ -14,7 +14,7 @@ A **server-driven UI** framework for Flutter. Your server sends JSON → the SDK
 ```yaml
 # pubspec.yaml
 dependencies:
-  flutter_sdui_kit: ^0.1.1
+  flutter_sdui_kit: ^0.3.1
 ```
 
 ### 2. Render a screen (3 lines)
@@ -472,6 +472,19 @@ Same JSON, any platform.
 | `nodeType` | `String?` |
 | `exception` | `Object?` |
 | `stackTrace` | `StackTrace?` |
+
+---
+
+## Part of the flutter_sdui workspace
+
+This package is developed in the [chinmay-singh-modak/sdui_workspace](https://github.com/chinmay-singh-modak/sdui_workspace) monorepo alongside the rest of the toolchain.
+
+| Package | Role | pub.dev |
+| ------- | ---- | ------- |
+| `flutter_sdui_annotations` | Annotations | [pub.dev/packages/flutter_sdui_annotations](https://pub.dev/packages/flutter_sdui_annotations) |
+| `flutter_sdui_converter` | CLI + programmatic converter tool | [pub.dev/packages/flutter_sdui_converter](https://pub.dev/packages/flutter_sdui_converter) |
+| `flutter_sdui_test` | Golden test utilities | [pub.dev/packages/flutter_sdui_test](https://pub.dev/packages/flutter_sdui_test) |
+| `flutter_sdui_kit` | SDUI runtime renderer (this package) | [pub.dev/packages/flutter_sdui_kit](https://pub.dev/packages/flutter_sdui_kit) |
 
 ---
 
