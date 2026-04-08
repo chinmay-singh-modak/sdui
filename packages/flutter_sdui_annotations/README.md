@@ -92,10 +92,13 @@ Running `flutter_sdui_converter` on the above produces:
 
 ---
 
-## Part of the flutter_sdui_kit workspace
+## Part of the flutter_sdui workspace
 
-| Package                    | Role                              |
-| -------------------------- | --------------------------------- |
-| `flutter_sdui_annotations` | Annotations (this package)        |
-| `flutter_sdui_converter`   | CLI + programmatic converter tool |
-| `flutter_sdui_test`        | Golden test utilities             |
+This package is developed in the [chinmay-singh-modak/sdui_workspace](https://github.com/chinmay-singh-modak/sdui_workspace) monorepo alongside the rest of the toolchain.
+
+| Package | Role | pub.dev |
+| ------- | ---- | ------- |
+| `flutter_sdui_annotations` | Annotations (this package) | [pub.dev/packages/flutter_sdui_annotations](https://pub.dev/packages/flutter_sdui_annotations) |
+| `flutter_sdui_converter` | CLI + programmatic converter tool | [pub.dev/packages/flutter_sdui_converter](https://pub.dev/packages/flutter_sdui_converter) |
+| `flutter_sdui_test` | Golden test utilities | [pub.dev/packages/flutter_sdui_test](https://pub.dev/packages/flutter_sdui_test) |
+| `flutter_sdui_kit` | SDUI runtime renderer | [pub.dev/packages/flutter_sdui_kit](https://pub.dev/packages/flutter_sdui_kit) |
