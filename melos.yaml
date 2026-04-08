@@ -4,6 +4,7 @@ packages:
   - flutter_sdui_annotations
   - flutter_sdui_converter
   - flutter_sdui_test
+  - flutter_sdui_kit
 
 command:
   bootstrap:
