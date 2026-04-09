@@ -99,7 +99,7 @@ This schema is consumed at runtime by [`flutter_sdui_kit`](https://pub.dev/packa
 
 ## Part of the flutter_sdui workspace
 
-This package is developed in the [chinmay-singh-modak/sdui_workspace](https://github.com/chinmay-singh-modak/sdui_workspace) monorepo alongside the rest of the toolchain.
+This package is developed in the [chinmay-singh-modak/sdui](https://github.com/chinmay-singh-modak/sdui) monorepo alongside the rest of the toolchain.
 
 | Package | Role | pub.dev |
 | ------- | ---- | ------- |

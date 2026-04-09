@@ -159,7 +159,7 @@ When `threshold > 0.0`, `sduiGoldenTest` installs a custom `goldenFileComparator
 
 ## Part of the flutter_sdui workspace
 
-This package is developed in the [chinmay-singh-modak/sdui_workspace](https://github.com/chinmay-singh-modak/sdui_workspace) monorepo alongside the rest of the toolchain.
+This package is developed in the [chinmay-singh-modak/sdui](https://github.com/chinmay-singh-modak/sdui) monorepo alongside the rest of the toolchain.
 
 | Package | Role | pub.dev |
 | ------- | ---- | ------- |

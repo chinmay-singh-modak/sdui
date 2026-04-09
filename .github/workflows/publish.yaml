@@ -5,7 +5,8 @@ name: Publish
 #
 # pub.dev OIDC automated publishing must be configured once per package at:
 # https://pub.dev/packages/<package>/admin → Automated publishing → GitHub Actions
-# Repository: chinmay-singh-modak/sdui_workspace
+# Repository: chinmay-singh-modak/sdui
+# Workflow: publish.yaml  Tag pattern: <package_name>-v*
 
 on:
   push:
@@ -33,7 +34,8 @@ on:
         default: true
 
 permissions:
-  id-token: write  # Required for pub.dev OIDC automated publishing
+  id-token: write   # Required for pub.dev OIDC automated publishing
+  contents: write   # Required to promote draft GitHub Release
 
 jobs:
   publish:
@@ -54,15 +56,19 @@ jobs:
       - name: Bootstrap
         run: melos bootstrap
 
-      - name: Resolve package name
+      - name: Resolve package name and tag
         id: pkg
         run: |
           if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            echo "name=${{ inputs.package }}" >> "$GITHUB_OUTPUT"
+            PKG="${{ inputs.package }}"
+            VERSION=$(grep '^version:' "packages/${PKG}/pubspec.yaml" | awk '{print $2}')
+            echo "name=${PKG}" >> "$GITHUB_OUTPUT"
+            echo "tag=${PKG}-v${VERSION}" >> "$GITHUB_OUTPUT"
           else
             # Extract from tag: flutter_sdui_annotations-v1.0.1 → flutter_sdui_annotations
             PKG=$(echo "${{ github.ref_name }}" | sed 's/-v[0-9].*//')
-            echo "name=$PKG" >> "$GITHUB_OUTPUT"
+            echo "name=${PKG}" >> "$GITHUB_OUTPUT"
+            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
           fi
 
       - name: Dry-run publish
@@ -75,3 +81,11 @@ jobs:
           (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)
         working-directory: packages/${{ steps.pkg.outputs.name }}
         run: dart pub publish --force
+
+      - name: Promote GitHub Release from draft
+        if: |
+          github.event_name == 'push' ||
+          (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: gh release edit "${{ steps.pkg.outputs.tag }}" --draft=false --repo "${{ github.repository }}"

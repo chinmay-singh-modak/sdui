@@ -1,6 +1,6 @@
 # flutter_sdui_kit — Claude Code Context
 
-**GitHub repo:** `git@github.com:chinmay-singh-modak/flutter_sdui_kit.git`
+**GitHub repo:** `git@github.com:chinmay-singh-modak/sdui.git`
 
 ## Project Overview
 
