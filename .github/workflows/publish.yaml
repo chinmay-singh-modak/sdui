@@ -6,7 +6,7 @@ name: Publish
 # pub.dev OIDC automated publishing must be configured once per package at:
 # https://pub.dev/packages/<package>/admin → Automated publishing → GitHub Actions
 # Repository: chinmay-singh-modak/sdui
-# Workflow: publish.yaml  Tag pattern: <package_name>-v*
+# Workflow: publish.yaml  Tag pattern: <package_name>-v{{version}}
 
 on:
   push:
@@ -33,15 +33,34 @@ on:
         type: boolean
         default: true
 
-permissions:
-  id-token: write   # Required for pub.dev OIDC automated publishing
-  contents: write   # Required to promote draft GitHub Release
-
 jobs:
-  publish:
-    name: Publish
+  # Resolves which package and tag to operate on — used by all downstream jobs
+  resolve:
     runs-on: ubuntu-latest
+    outputs:
+      package: ${{ steps.pkg.outputs.name }}
+      tag: ${{ steps.pkg.outputs.tag }}
+    steps:
+      - uses: actions/checkout@v4
 
+      - name: Resolve package name and tag
+        id: pkg
+        run: |
+          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
+            PKG="${{ inputs.package }}"
+            VERSION=$(grep '^version:' "packages/${PKG}/pubspec.yaml" | awk '{print $2}')
+          else
+            PKG=$(echo "${{ github.ref_name }}" | sed 's/-v[0-9].*$//')
+            VERSION=$(echo "${{ github.ref_name }}" | sed 's/.*-v//')
+          fi
+          echo "name=${PKG}" >> "$GITHUB_OUTPUT"
+          echo "tag=${PKG}-v${VERSION}" >> "$GITHUB_OUTPUT"
+
+  # Dry-run only — runs when workflow_dispatch with dry_run: true
+  dry-run:
+    needs: resolve
+    if: github.event_name == 'workflow_dispatch' && inputs.dry_run == true
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
 
@@ -56,36 +75,30 @@ jobs:
       - name: Bootstrap
         run: melos bootstrap
 
-      - name: Resolve package name and tag
-        id: pkg
-        run: |
-          if [[ "${{ github.event_name }}" == "workflow_dispatch" ]]; then
-            PKG="${{ inputs.package }}"
-            VERSION=$(grep '^version:' "packages/${PKG}/pubspec.yaml" | awk '{print $2}')
-            echo "name=${PKG}" >> "$GITHUB_OUTPUT"
-            echo "tag=${PKG}-v${VERSION}" >> "$GITHUB_OUTPUT"
-          else
-            # Extract from tag: flutter_sdui_annotations-v1.0.1 → flutter_sdui_annotations
-            PKG=$(echo "${{ github.ref_name }}" | sed 's/-v[0-9].*//')
-            echo "name=${PKG}" >> "$GITHUB_OUTPUT"
-            echo "tag=${{ github.ref_name }}" >> "$GITHUB_OUTPUT"
-          fi
-
       - name: Dry-run publish
-        working-directory: packages/${{ steps.pkg.outputs.name }}
+        working-directory: packages/${{ needs.resolve.outputs.package }}
         run: dart pub publish --dry-run
 
-      - name: Publish to pub.dev
-        if: |
-          github.event_name == 'push' ||
-          (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)
-        working-directory: packages/${{ steps.pkg.outputs.name }}
-        run: dart pub publish --force
+  # Actual publish — uses dart-lang reusable workflow for OIDC
+  publish:
+    needs: resolve
+    if: |
+      github.event_name == 'push' ||
+      (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)
+    permissions:
+      id-token: write # Required for pub.dev OIDC automated publishing
+    uses: dart-lang/setup-dart/.github/workflows/publish.yml@v1
+    with:
+      working-directory: packages/${{ needs.resolve.outputs.package }}
 
+  # Promotes the draft GitHub Release only after a successful publish
+  promote-release:
+    needs: [resolve, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # Required to promote draft GitHub Release
+    steps:
       - name: Promote GitHub Release from draft
-        if: |
-          github.event_name == 'push' ||
-          (github.event_name == 'workflow_dispatch' && inputs.dry_run == false)
         env:
           GH_TOKEN: ${{ github.token }}
-        run: gh release edit "${{ steps.pkg.outputs.tag }}" --draft=false --repo "${{ github.repository }}"
+        run: gh release edit "${{ needs.resolve.outputs.tag }}" --draft=false --repo "${{ github.repository }}"
