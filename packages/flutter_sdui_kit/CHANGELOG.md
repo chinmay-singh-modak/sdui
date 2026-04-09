@@ -1,13 +1,5 @@
 # Changelog
 
-## [0.3.3](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_kit-v0.3.2...flutter_sdui_kit-v0.3.3) (2026-04-08)
-
-
-### Bug Fixes
-
-* **flutter_sdui_kit:** add .pubignore to exclude example from published package ([2f72010](https://github.com/chinmay-singh-modak/sdui/commit/2f72010fbbf96e754950583fb562fd5331e89231))
-* **flutter_sdui_kit:** update version in install example and add monorepo workspace links ([b167b63](https://github.com/chinmay-singh-modak/sdui/commit/b167b63c3ebfccade08014df09dc48a053e4fa0f))
-
 ## [0.3.2](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_kit-v0.3.1...flutter_sdui_kit-v0.3.2) (2026-04-08)
 
 

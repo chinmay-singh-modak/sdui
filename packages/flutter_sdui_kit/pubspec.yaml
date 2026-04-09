@@ -1,7 +1,7 @@
 name: flutter_sdui_kit
 description: >-
   A server-driven UI framework for Flutter. Render native widgets from JSON with 23 components, data binding, forms, theming, and action handling.
-version: 0.3.3
+version: 0.3.2
 homepage: https://chinmaysinghmodak.com/
 repository: https://github.com/chinmay-singh-modak/sdui/tree/main/packages/flutter_sdui_kit
 issue_tracker: https://github.com/chinmay-singh-modak/sdui/issues
