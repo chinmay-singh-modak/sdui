@@ -1,5 +1,11 @@
 # Changelog
 
+## [1.1.0](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_converter-v1.0.2...flutter_sdui_converter-v1.1.0) (2026-05-09)
+
+### Documentation
+
+* **flutter_sdui_converter:** replace empty example stub with working `SduiConverter.convert()` demo showing basic usage, config override, and breaking-change detection
+
 ## [1.0.2](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_converter-v1.0.1...flutter_sdui_converter-v1.0.2) (2026-04-08)
 
 ### Bug Fixes

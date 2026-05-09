@@ -1,7 +1,13 @@
 # Changelog
 
-## [1.0.1](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_test-v1.0.0...flutter_sdui_test-v1.0.1) (2026-04-08)
+## [1.1.0](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_test-v1.0.1...flutter_sdui_test-v1.1.0) (2026-05-09)
 
+### Documentation
+
+* **flutter_sdui_test:** add pub.dev example showing `sduiGoldenTest()` with file-path schema and inline schema
+* **flutter_sdui_test:** bump `flutter_sdui_kit` dependency to `^0.4.0`
+
+## [1.0.1](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_test-v1.0.0...flutter_sdui_test-v1.0.1) (2026-04-08)
 
 ### Bug Fixes
 

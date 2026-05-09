@@ -1,15 +1,19 @@
 # Changelog
 
-## [0.3.2](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_kit-v0.3.1...flutter_sdui_kit-v0.3.2) (2026-04-08)
+## [0.4.0](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_kit-v0.3.2...flutter_sdui_kit-v0.4.0) (2026-05-09)
 
+### Documentation
+
+* **flutter_sdui_kit:** remove `example/` from `.pubignore` so pub.dev displays the example tab
+* **flutter_sdui_kit:** remove redundant `example/example.dart` — pub.dev uses `example/lib/main.dart`
+
+## [0.3.2](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_kit-v0.3.1...flutter_sdui_kit-v0.3.2) (2026-04-08)
 
 ### Bug Fixes
 
 * **flutter_sdui_kit:** update version in install example and add monorepo workspace links ([b167b63](https://github.com/chinmay-singh-modak/sdui/commit/b167b63c3ebfccade08014df09dc48a053e4fa0f))
 
 ## 0.3.1
-
-### Bug Fixes
 
 * **Fixed:** `cardBuilder` caused a **stack overflow on render** when a card had an action. The `Builder` widget's child referenced the reassigned `card` variable, creating infinite recursion (`Builder → GestureDetector → card → Builder → …`). Now uses a separate `cardWidget` variable.
 
@@ -52,8 +56,6 @@ handler.register('navigate', (context, action, payload) {
 
 ## 0.2.1
 
-### Bug Fixes
-
 * **Fixed:** `buttonBuilder` crashed with `BoxConstraints forces an infinite width` when a `full_width: true` button was placed inside a `Row` or other unconstrained parent. Replaced `Center` + `SizedBox(width: infinity)` with layout-safe `Align` widget.
 * Updated example to use `flex: 1` on buttons inside a `Row` for proper space distribution.
 
@@ -92,8 +94,6 @@ handler.register('navigate', (context, action, payload) {
 * **Breaking:** `errorWidget` renamed to `fallback`
 * `SduiWidget.json` is now `required` (nullable `String?`)
 * Exported `sdui_error.dart` and `layout_helpers.dart` from barrel file
-
-### Documentation
 
 * Complete README rewrite with Quick Start, JSON Protocol, all 23 components, state management examples (setState, Riverpod, Bloc, GetX), layout safety guide, architecture diagram, API reference
 * Comprehensive doc comments on all public builders

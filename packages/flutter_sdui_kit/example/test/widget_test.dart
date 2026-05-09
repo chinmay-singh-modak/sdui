@@ -1,6 +1,5 @@
+import 'package:flutter_sdui_kit_example/main.dart';
 import 'package:flutter_test/flutter_test.dart';
-
-import '../example.dart';
 
 void main() {
   testWidgets('ExampleApp smoke test — launches without crashing', (
