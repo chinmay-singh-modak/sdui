@@ -1,3 +1,7 @@
+/// The result of comparing two [SduiSchema] versions.
+///
+/// [hasBreakingChanges] is the fast check callers use to gate publish flows.
+/// [SchemaDiff.empty] is a convenient constant for "no changes".
 class SchemaDiff {
   final List<BreakingChange> breaking;
   final List<NonBreakingChange> nonBreaking;
@@ -13,6 +17,7 @@ class SchemaDiff {
   static const SchemaDiff empty = SchemaDiff(breaking: [], nonBreaking: []);
 }
 
+/// A schema change that is backwards-incompatible with existing consumers.
 class BreakingChange {
   final String description;
 
@@ -22,6 +27,7 @@ class BreakingChange {
   String toString() => description;
 }
 
+/// A schema change that is safe for existing consumers (additive or cosmetic).
 class NonBreakingChange {
   final String description;
 

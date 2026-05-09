@@ -1,3 +1,7 @@
+/// Resolved configuration for a single conversion run.
+///
+/// Built from `flutter_sdui.yaml` by [ConfigLoader], with CLI flags merged on
+/// top. Callers can also construct one directly for programmatic use.
 class SduiConfig {
   final String version;
   final String outputPath;
@@ -25,6 +29,10 @@ class SduiConfig {
       );
 }
 
+/// Glob patterns controlling which `.dart` files are scanned.
+///
+/// [include] defaults to the whole `lib/` tree. [exclude] is merged with the
+/// built-in auto-excludes (`*.g.dart`, `*.freezed.dart`).
 class ScanConfig {
   final List<String> include;
   final List<String> exclude;
@@ -35,6 +43,10 @@ class ScanConfig {
   });
 }
 
+/// Optional behaviour toggles for a conversion run.
+///
+/// [strictMode]: unknown Dart types are hard errors instead of `any`.
+/// [generateTypes]: emit typed constraints alongside the SDUI type string.
 class FeatureFlags {
   final bool strictMode;
   final bool generateTypes;

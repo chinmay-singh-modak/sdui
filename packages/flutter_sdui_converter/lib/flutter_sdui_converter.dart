@@ -1,3 +1,7 @@
+/// Server-Driven UI converter for Flutter.
+///
+/// Primary entry point: [SduiConverter.convert].
+/// Config model: [SduiConfig]. Output model: [SduiSchema].
 library;
 
 export 'src/config/sdui_config.dart';

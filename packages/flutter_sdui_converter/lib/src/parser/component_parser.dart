@@ -127,8 +127,8 @@ class _SduiVisitor extends RecursiveAstVisitor<void> {
         final args = annotation.arguments?.arguments;
         if (args == null) return null;
         for (final arg in args) {
-          if (arg is NamedExpression && arg.name.label.name == 'name') {
-            final expr = arg.expression;
+          if (arg is NamedArgument && arg.name.lexeme == 'name') {
+            final expr = arg.argumentExpression;
             if (expr is SimpleStringLiteral) return expr.value;
             if (expr is AdjacentStrings) return expr.stringValue;
           }
@@ -144,9 +144,8 @@ class _SduiVisitor extends RecursiveAstVisitor<void> {
         final args = annotation.arguments?.arguments;
         if (args == null) return null;
         for (final arg in args) {
-          if (arg is NamedExpression &&
-              arg.name.label.name == 'defaultValue') {
-            return _literalValue(arg.expression);
+          if (arg is NamedArgument && arg.name.lexeme == 'defaultValue') {
+            return _literalValue(arg.argumentExpression);
           }
         }
       }
@@ -155,10 +154,7 @@ class _SduiVisitor extends RecursiveAstVisitor<void> {
   }
 
   dynamic _extractConstructorDefault(FormalParameter param) {
-    if (param is DefaultFormalParameter) {
-      return _literalValue(param.defaultValue);
-    }
-    return null;
+    return _literalValue(param.defaultClause?.value);
   }
 
   dynamic _literalValue(Expression? expr) {
@@ -179,8 +175,7 @@ class _SduiVisitor extends RecursiveAstVisitor<void> {
   }
 
   String? _paramName(FormalParameter param) {
-    if (param is SimpleFormalParameter) return param.name?.lexeme;
-    if (param is DefaultFormalParameter) return _paramName(param.parameter);
+    if (param is RegularFormalParameter) return param.name?.lexeme;
     if (param is FieldFormalParameter) return param.name.lexeme;
     if (param is SuperFormalParameter) return param.name.lexeme;
     return null;
@@ -188,10 +183,7 @@ class _SduiVisitor extends RecursiveAstVisitor<void> {
 
   String _typeString(FormalParameter param,
       [Map<String, String> fieldTypes = const {}]) {
-    if (param is DefaultFormalParameter) {
-      return _typeString(param.parameter, fieldTypes);
-    }
-    if (param is SimpleFormalParameter) {
+    if (param is RegularFormalParameter) {
       return param.type?.toSource() ?? 'dynamic';
     }
     if (param is FieldFormalParameter) {

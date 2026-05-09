@@ -1,3 +1,7 @@
+/// A single prop entry within a [SduiComponent].
+///
+/// [required] is `true` when the Dart field is non-nullable and has no default.
+/// [defaultValue] is only present when [required] is `false`.
 class SduiProp {
   final String name;
   final String type;

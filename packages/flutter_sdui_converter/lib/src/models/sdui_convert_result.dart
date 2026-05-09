@@ -1,3 +1,7 @@
+/// A discriminated union returned by [SduiConverter.convert].
+///
+/// Inspect with [fold] (side-effects) or [map] (transform to a value).
+/// Use [isSuccess] / [isFailure] for simple branching.
 class SduiConvertResult<S, E> {
   final S? _success;
   final E? _error;
@@ -45,6 +49,10 @@ class SduiConvertResult<S, E> {
   }
 }
 
+/// A structured error from a failed conversion step.
+///
+/// [file] and [line] are optional — populated when the error is traceable
+/// to a specific source location.
 class SduiConvertError {
   final String message;
   final String? file;

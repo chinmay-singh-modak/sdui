@@ -5,6 +5,10 @@ import 'package:yaml/yaml.dart';
 
 import 'sdui_config.dart';
 
+/// Reads and validates `flutter_sdui.yaml`, then merges CLI overrides on top.
+///
+/// Config file is optional — silently falls back to [SduiConfig] defaults when
+/// absent. [version] is validated as semver; an invalid value throws [FormatException].
 class ConfigLoader {
   /// Loads config from [projectPath]/flutter_sdui.yaml.
   /// Falls back to defaults silently if the file is absent.

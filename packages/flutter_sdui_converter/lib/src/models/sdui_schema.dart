@@ -1,5 +1,10 @@
 import 'sdui_component.dart';
 
+/// The top-level output of a conversion run.
+///
+/// [schemaVersion] is the user-controlled version from `flutter_sdui.yaml`.
+/// [converterVersion] tracks which version of this tool produced the file.
+/// Callers retrieve the optional diff via the [SduiSchemaX.diff] extension.
 class SduiSchema {
   final String schemaVersion;
   final DateTime generatedAt;
