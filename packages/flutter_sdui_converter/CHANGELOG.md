@@ -1,5 +1,26 @@
 # Changelog
 
+## [1.1.1](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_converter-v1.1.0...flutter_sdui_converter-v1.1.1) (2026-05-09)
+
+### Bug Fixes
+
+* **flutter_sdui_converter:** migrate `ComponentParser` to `analyzer` 13 API
+  (`NamedExpression` → `NamedArgument`, `SimpleFormalParameter` →
+  `RegularFormalParameter`, `DefaultFormalParameter` removed — use
+  `FormalParameter.defaultClause?.value`)
+
+### Dependencies
+
+* Bump `analyzer` constraint `^12.0.0` → `^13.0.0`; upgrade `test`,
+  `matcher`, `vm_service`, `_fe_analyzer_shared` to latest compatible versions
+
+### Documentation
+
+* Add `///` doc comments to all public classes: `SduiSchema`, `SduiProp`,
+  `SduiConvertResult`, `SduiConvertError`, `SchemaDiff`, `BreakingChange`,
+  `NonBreakingChange`, `SduiConfig`, `ScanConfig`, `FeatureFlags`,
+  `ConfigLoader`, and library barrel
+
 ## [1.1.0](https://github.com/chinmay-singh-modak/sdui/compare/flutter_sdui_converter-v1.0.2...flutter_sdui_converter-v1.1.0) (2026-05-09)
 
 ### Documentation
